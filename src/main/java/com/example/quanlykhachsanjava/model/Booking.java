@@ -2,8 +2,16 @@ package com.example.quanlykhachsanjava.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "bookings")
@@ -25,8 +33,37 @@ public class Booking {
     @ToString.Exclude
     private Room room;
 
+    @NotNull(message = "Check-in date is required")
+    @FutureOrPresent(message = "Check-in date cannot be in the past")
+    @Column(nullable = false)
     private LocalDate checkInDate;
-    private LocalDate checkOutDate;
-    private Double totalAmount;
-}
 
+    @NotNull(message = "Check-out date is required")
+    @Future(message = "Check-out date must be in the future")
+    @Column(nullable = false)
+    private LocalDate checkOutDate;
+
+    @Min(value = 0, message = "Total amount cannot be negative")
+    private Double totalAmount;
+
+    @Min(value = 1, message = "Number of guests must be at least 1")
+    private Integer numberOfGuests;
+
+    @Column(nullable = false)
+    private String bookingStatus = "PENDING";
+
+    @Column(nullable = false)
+    private String paymentStatus = "UNPAID";
+
+    private String paymentMethod;
+
+    @Column(columnDefinition = "TEXT")
+    private String specialRequests;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+}
