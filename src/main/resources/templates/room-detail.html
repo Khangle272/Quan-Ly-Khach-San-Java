@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Phòng ' + ${room.roomNumber} + ' - Hotel Booking'">
+        Chi tiết phòng
+    </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="flex-grow-1 room-detail-page">
+    <div class="container">
+
+        <!-- Back link -->
+        <div class="room-detail-nav">
+            <a class="detail-back-link"
+               th:href="${selectedCategoryId != null and checkIn != null and checkOut != null}
+                    ? @{/rooms(categoryId=${selectedCategoryId}, checkIn=${checkIn}, checkOut=${checkOut})}
+                    : @{/rooms}">
+                <i class="bi bi-arrow-left"></i>
+                <span>Quay lại danh sách phòng</span>
+            </a>
+        </div>
+
+        <!-- Main detail layout -->
+        <section class="room-detail-layout">
+
+            <!-- Left content -->
+            <div class="room-detail-main">
+
+                <!-- Visual block -->
+                <div class="room-detail-visual-card">
+                    <div class="room-detail-visual">
+                        <div class="detail-visual-icon">
+                            <i class="bi bi-door-open"></i>
+                        </div>
+
+                        <div>
+                            <span class="detail-visual-kicker" th:text="${room.category.name}">
+                                Standard
+                            </span>
+
+                            <h1 th:text="'Phòng ' + ${room.roomNumber}">
+                                Phòng 101
+                            </h1>
+                        </div>
+                    </div>
+
+                    <span class="detail-status"
+                          th:classappend="${room.status == 'AVAILABLE' ? ' detail-status-available' : (room.status == 'MAINTENANCE' ? ' detail-status-maintenance' : ' detail-status-unavailable')}"
+                          th:text="${room.status == 'AVAILABLE' ? 'Còn phòng' : (room.status == 'MAINTENANCE' ? 'Bảo trì' : 'Không khả dụng')}">
+                        Còn phòng
+                    </span>
+                </div>
+
+                <!-- Description -->
+                <section class="detail-section">
+                    <div class="detail-section-head">
+                        <span>Thông tin phòng</span>
+                        <h2>Không gian lưu trú</h2>
+                    </div>
+
+                    <p class="detail-description" th:text="${room.category.description}">
+                        Phòng tiêu chuẩn, phù hợp cho khách lưu trú ngắn ngày.
+                    </p>
+                </section>
+
+                <!-- Basic info -->
+                <section class="detail-section">
+                    <div class="detail-section-head">
+                        <span>Tổng quan</span>
+                        <h2>Thông tin cơ bản</h2>
+                    </div>
+
+                    <div class="detail-info-grid">
+                        <div class="detail-info-item">
+                            <i class="bi bi-people"></i>
+                            <span>Sức chứa</span>
+                            <strong>
+                                <span th:text="${room.category.capacity}">2</span>
+                                khách
+                            </strong>
+                        </div>
+
+                        <div class="detail-info-item">
+                            <i class="bi bi-lamp"></i>
+                            <span>Loại giường</span>
+                            <strong th:text="${room.category.bedType}">
+                                Giường đôi
+                            </strong>
+                        </div>
+
+                        <div class="detail-info-item">
+                            <i class="bi bi-layers"></i>
+                            <span>Tầng</span>
+                            <strong th:text="${room.floor}">
+                                1
+                            </strong>
+                        </div>
+
+                        <div class="detail-info-item">
+                            <i class="bi bi-door-open"></i>
+                            <span>Số phòng</span>
+                            <strong th:text="${room.roomNumber}">
+                                101
+                            </strong>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Amenities -->
+                <section class="detail-section"
+                         th:if="${room.category.amenities != null and !#strings.isEmpty(room.category.amenities)}"
+                         th:with="amenities=${#strings.arraySplit(room.category.amenities, ',')}">
+
+                    <div class="detail-section-head">
+                        <span>Tiện nghi</span>
+                        <h2>Dịch vụ trong phòng</h2>
+                    </div>
+
+                    <div class="detail-amenity-list">
+                        <span class="detail-amenity-chip"
+                              th:each="amenity : ${amenities}"
+                              th:text="${#strings.trim(amenity)}">
+                            WiFi
+                        </span>
+                    </div>
+                </section>
+
+                <!-- Policy -->
+                <section class="detail-section">
+                    <div class="detail-section-head">
+                        <span>Lưu ý</span>
+                        <h2>Chính sách lưu trú</h2>
+                    </div>
+
+                    <div class="detail-policy-list">
+                        <div class="detail-policy-item">
+                            <i class="bi bi-clock"></i>
+                            <div>
+                                <strong>Nhận phòng / trả phòng</strong>
+                                <p>Thời gian nhận phòng từ 14:00 và trả phòng trước 12:00.</p>
+                            </div>
+                        </div>
+
+                        <div class="detail-policy-item">
+                            <i class="bi bi-credit-card"></i>
+                            <div>
+                                <strong>Thanh toán</strong>
+                                <p>Có thể thanh toán theo phương thức được hỗ trợ khi đặt phòng.</p>
+                            </div>
+                        </div>
+
+                        <div class="detail-policy-item">
+                            <i class="bi bi-shield-check"></i>
+                            <div>
+                                <strong>Xác nhận đặt phòng</strong>
+                                <p>Đơn đặt phòng sẽ được ghi nhận sau khi bạn hoàn tất thông tin đặt phòng.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right booking summary -->
+            <aside class="room-detail-side">
+                <div class="detail-booking-card">
+                    <div class="detail-price-block">
+                        <span>Giá phòng</span>
+
+                        <strong>
+                            <span th:text="${#numbers.formatDecimal(room.category.price, 0, 'POINT', 0, 'COMMA')}">
+                                500.000
+                            </span>
+                            <small>đ</small>
+                        </strong>
+
+                        <p>/ đêm</p>
+                    </div>
+
+                    <div class="detail-booking-meta">
+                        <div>
+                            <span>Loại phòng</span>
+                            <strong th:text="${room.category.name}">Standard</strong>
+                        </div>
+
+                        <div>
+                            <span>Trạng thái</span>
+                            <strong th:text="${room.status == 'AVAILABLE' ? 'Còn phòng' : (room.status == 'MAINTENANCE' ? 'Bảo trì' : 'Không khả dụng')}">
+                                Còn phòng
+                            </strong>
+                        </div>
+
+                        <div th:if="${checkIn != null}">
+                            <span>Ngày nhận</span>
+                            <strong th:text="${checkIn}">2026-05-20</strong>
+                        </div>
+
+                        <div th:if="${checkOut != null}">
+                            <span>Ngày trả</span>
+                            <strong th:text="${checkOut}">2026-05-22</strong>
+                        </div>
+                    </div>
+
+                    <div class="detail-booking-actions">
+                        <a class="detail-primary-action"
+                           th:classappend="${room.status != 'AVAILABLE' ? ' is-disabled' : ''}"
+                           th:href="@{/booking/create(roomId=${room.id}, checkIn=${checkIn}, checkOut=${checkOut})}">
+                            <i class="bi bi-calendar-check"></i>
+                            <span>Đặt phòng</span>
+                        </a>
+
+                        <a class="detail-secondary-action" th:href="@{/rooms}">
+                            Xem tất cả phòng
+                        </a>
+                    </div>
+
+                    <p class="detail-booking-note">
+                        Giá có thể thay đổi theo thời gian lưu trú và chính sách khách sạn.
+                    </p>
+                </div>
+            </aside>
+        </section>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -54,4 +54,28 @@ public class BookingService {
     public void delete(Long id) {
         bookingRepository.deleteById(id);
     }
+    
+    public List<Booking> findByUsername(String username) {
+        return bookingRepository.findByUserUsernameOrderByIdDesc(username);
+    }
+
+    public Optional<Booking> findByIdAndUsername(Long id, String username) {
+        return bookingRepository.findByIdAndUserUsername(id, username);
+    }
+
+    public Booking updateBookingStatus(Long id, String status) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        booking.setBookingStatus(status);
+        return bookingRepository.save(booking);
+    }
+
+    public Booking updatePaymentStatus(Long id, String paymentStatus) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        booking.setPaymentStatus(paymentStatus);
+        return bookingRepository.save(booking);
+    }
 }

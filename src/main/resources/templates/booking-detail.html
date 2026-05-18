@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Chi tiết đặt phòng #' + ${booking.id} + ' - Hotel Booking'">
+        Chi tiết đặt phòng - Hotel Booking
+    </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="flex-grow-1 booking-detail-page">
+    <div class="container">
+
+        <div class="booking-detail-nav">
+            <a class="booking-detail-back" th:href="@{/booking/history}">
+                <i class="bi bi-arrow-left"></i>
+                <span>Quay lại lịch sử đặt phòng</span>
+            </a>
+        </div>
+
+        <section class="booking-detail-head">
+            <div>
+                <span>Chi tiết đặt phòng</span>
+                <h1>
+                    Đơn đặt phòng #
+                    <span th:text="${booking.id}">1</span>
+                </h1>
+                <p>
+                    Xem lại thông tin lưu trú, thanh toán và trạng thái xử lý của đơn đặt phòng.
+                </p>
+            </div>
+
+            <span class="detail-booking-status"
+                  th:classappend="${booking.bookingStatus == 'PENDING' ? ' status-pending' :
+                      (booking.bookingStatus == 'CONFIRMED' ? ' status-confirmed' :
+                      (booking.bookingStatus == 'CANCELLED' ? ' status-cancelled' :
+                      (booking.bookingStatus == 'COMPLETED' ? ' status-completed' : ' status-pending')))}"
+                  th:switch="${booking.bookingStatus}">
+                <span th:case="'PENDING'">Chờ xác nhận</span>
+                <span th:case="'CONFIRMED'">Đã xác nhận</span>
+                <span th:case="'CANCELLED'">Đã hủy</span>
+                <span th:case="'COMPLETED'">Hoàn tất</span>
+                <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>
+            </span>
+        </section>
+
+        <section class="booking-detail-layout">
+
+            <!-- Main content -->
+            <div class="booking-detail-main">
+
+                <div class="booking-detail-card">
+                    <div class="booking-detail-card-head">
+                        <span>Thông tin lưu trú</span>
+                        <h2>Lịch đặt phòng</h2>
+                    </div>
+
+                    <div class="booking-detail-grid">
+                        <div class="booking-detail-info">
+                            <i class="bi bi-door-open"></i>
+                            <div>
+                                <span>Phòng</span>
+                                <strong th:text="'Phòng ' + ${booking.room.roomNumber}">
+                                    Phòng 101
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="booking-detail-info">
+                            <i class="bi bi-house"></i>
+                            <div>
+                                <span>Loại phòng</span>
+                                <strong th:text="${booking.room.category.name}">
+                                    Standard
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="booking-detail-info">
+                            <i class="bi bi-calendar-check"></i>
+                            <div>
+                                <span>Ngày nhận phòng</span>
+                                <strong th:text="${booking.checkInDate}">
+                                    2026-05-20
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="booking-detail-info">
+                            <i class="bi bi-calendar-x"></i>
+                            <div>
+                                <span>Ngày trả phòng</span>
+                                <strong th:text="${booking.checkOutDate}">
+                                    2026-05-22
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="booking-detail-info">
+                            <i class="bi bi-people"></i>
+                            <div>
+                                <span>Số khách</span>
+                                <strong>
+                                    <span th:text="${booking.numberOfGuests}">2</span>
+                                    khách
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="booking-detail-info">
+                            <i class="bi bi-layers"></i>
+                            <div>
+                                <span>Tầng</span>
+                                <strong th:text="${booking.room.floor}">
+                                    1
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-detail-card">
+                    <div class="booking-detail-card-head">
+                        <span>Yêu cầu</span>
+                        <h2>Yêu cầu đặc biệt</h2>
+                    </div>
+
+                    <div class="booking-request-box"
+                         th:if="${booking.specialRequests != null and !#strings.isEmpty(booking.specialRequests)}">
+                        <p th:text="${booking.specialRequests}">
+                            Phòng yên tĩnh, nhận phòng sớm.
+                        </p>
+                    </div>
+
+                    <div class="booking-request-box booking-request-empty"
+                         th:if="${booking.specialRequests == null or #strings.isEmpty(booking.specialRequests)}">
+                        <i class="bi bi-chat-left-text"></i>
+                        <p>Không có yêu cầu đặc biệt.</p>
+                    </div>
+                </div>
+
+                <div class="booking-detail-card">
+                    <div class="booking-detail-card-head">
+                        <span>Thông tin phòng</span>
+                        <h2>Chi tiết phòng đã đặt</h2>
+                    </div>
+
+                    <p class="booking-room-description"
+                       th:text="${booking.room.category.description}">
+                        Phòng tiêu chuẩn, phù hợp cho khách lưu trú ngắn ngày.
+                    </p>
+
+                    <div class="booking-room-tags"
+                         th:if="${booking.room.category.amenities != null and !#strings.isEmpty(booking.room.category.amenities)}"
+                         th:with="amenities=${#strings.arraySplit(booking.room.category.amenities, ',')}">
+
+                        <span th:each="amenity : ${amenities}"
+                              th:text="${#strings.trim(amenity)}">
+                            WiFi
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side content -->
+            <aside class="booking-detail-side">
+
+                <div class="booking-payment-card">
+                    <div class="booking-payment-head">
+                        <span>Tổng tiền</span>
+                        <strong>
+                            <span th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'POINT', 0, 'COMMA')}">
+                                1.000.000
+                            </span>
+                            đ
+                        </strong>
+                    </div>
+
+                    <div class="booking-payment-list">
+                        <div>
+                            <span>Phương thức</span>
+                            <strong th:switch="${booking.paymentMethod}">
+                                <span th:case="'CASH'">Thanh toán tại khách sạn</span>
+                                <span th:case="'BANK_TRANSFER'">Chuyển khoản ngân hàng</span>
+                                <span th:case="'CARD'">Thẻ tín dụng / ghi nợ</span>
+                                <span th:case="*" th:text="${booking.paymentMethod}">Thanh toán</span>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Trạng thái thanh toán</span>
+                            <strong th:switch="${booking.paymentStatus}">
+                                <span th:case="'UNPAID'">Chưa thanh toán</span>
+                                <span th:case="'PAID'">Đã thanh toán</span>
+                                <span th:case="'REFUNDED'">Đã hoàn tiền</span>
+                                <span th:case="*" th:text="${booking.paymentStatus}">Chưa thanh toán</span>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Trạng thái đơn</span>
+                            <strong th:switch="${booking.bookingStatus}">
+                                <span th:case="'PENDING'">Chờ xác nhận</span>
+                                <span th:case="'CONFIRMED'">Đã xác nhận</span>
+                                <span th:case="'CANCELLED'">Đã hủy</span>
+                                <span th:case="'COMPLETED'">Hoàn tất</span>
+                                <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>
+                            </strong>
+                        </div>
+                    </div>
+
+                    <p class="booking-payment-note">
+                        Tổng tiền được tính dựa trên số đêm lưu trú và giá phòng tại thời điểm đặt.
+                    </p>
+                </div>
+
+                <div class="booking-room-side-card">
+                    <div class="booking-room-side-thumb">
+                        <i class="bi bi-door-open"></i>
+                        <span th:text="'Phòng ' + ${booking.room.roomNumber}">
+                            Phòng 101
+                        </span>
+                    </div>
+
+                    <div class="booking-room-side-info">
+                        <span th:text="${booking.room.category.name}">
+                            Standard
+                        </span>
+
+                        <h2 th:text="'Phòng ' + ${booking.room.roomNumber}">
+                            Phòng 101
+                        </h2>
+
+                        <p>
+                            <span th:text="${booking.room.category.capacity}">2</span>
+                            khách ·
+                            <span th:text="${booking.room.category.bedType}">Giường đôi</span>
+                        </p>
+                    </div>
+
+                    <a class="booking-room-side-link"
+                       th:href="@{/rooms/{id}(id=${booking.room.id})}">
+                        Xem lại phòng
+                    </a>
+                </div>
+
+            </aside>
+        </section>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

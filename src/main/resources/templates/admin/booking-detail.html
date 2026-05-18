@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Booking #' + ${booking.id} + ' - Admin'">
+        Chi tiết booking - Admin
+    </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/admin-header :: adminHeader}"></div>
+
+<main class="flex-grow-1 admin-crud-page">
+    <div class="container">
+
+        <div class="admin-crud-nav">
+            <a th:href="@{/admin/bookings}" class="admin-crud-back">
+                <i class="bi bi-arrow-left"></i>
+                <span>Quay lại danh sách booking</span>
+            </a>
+        </div>
+
+        <section class="admin-crud-head">
+            <div>
+                <span>Chi tiết booking</span>
+                <h1>
+                    Đơn đặt phòng #
+                    <span th:text="${booking.id}">1</span>
+                </h1>
+                <p>
+                    Xem thông tin khách hàng, phòng đã đặt, thời gian lưu trú và trạng thái thanh toán.
+                </p>
+            </div>
+
+            <a th:href="@{/admin/bookings}" class="admin-crud-primary">
+                <i class="bi bi-calendar2-check"></i>
+                <span>Tất cả booking</span>
+            </a>
+        </section>
+
+        <div class="admin-crud-alert admin-crud-alert-success"
+             th:if="${successMessage != null}">
+            <i class="bi bi-check-circle"></i>
+            <span th:text="${successMessage}">Thành công.</span>
+        </div>
+
+        <div class="admin-crud-alert admin-crud-alert-danger"
+             th:if="${errorMessage != null}">
+            <i class="bi bi-exclamation-circle"></i>
+            <span th:text="${errorMessage}">Có lỗi xảy ra.</span>
+        </div>
+
+        <section class="admin-booking-detail-layout">
+
+            <!-- Main -->
+            <div class="admin-booking-detail-main">
+
+                <div class="admin-crud-panel">
+                    <div class="admin-crud-panel-head">
+                        <div>
+                            <span>Thông tin khách hàng</span>
+                            <h2>Người đặt phòng</h2>
+                        </div>
+                    </div>
+
+                    <div class="admin-detail-grid">
+                        <div class="admin-detail-item">
+                            <i class="bi bi-person"></i>
+                            <div>
+                                <span>Họ tên</span>
+                                <strong th:text="${booking.user.fullName}">
+                                    Nguyễn Văn A
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <i class="bi bi-at"></i>
+                            <div>
+                                <span>Tên đăng nhập</span>
+                                <strong th:text="${booking.user.username}">
+                                    user
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <i class="bi bi-envelope"></i>
+                            <div>
+                                <span>Email</span>
+                                <strong th:text="${booking.user.email != null ? booking.user.email : '-'}">
+                                    user@example.com
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <i class="bi bi-telephone"></i>
+                            <div>
+                                <span>Số điện thoại</span>
+                                <strong th:text="${booking.user.phone != null ? booking.user.phone : '-'}">
+                                    0123456789
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-crud-panel">
+                    <div class="admin-crud-panel-head">
+                        <div>
+                            <span>Thông tin lưu trú</span>
+                            <h2>Phòng và thời gian</h2>
+                        </div>
+                    </div>
+
+                    <div class="admin-detail-grid">
+                        <div class="admin-detail-item">
+                            <i class="bi bi-door-open"></i>
+                            <div>
+                                <span>Phòng</span>
+                                <strong th:text="'Phòng ' + ${booking.room.roomNumber}">
+                                    Phòng 101
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <i class="bi bi-grid"></i>
+                            <div>
+                                <span>Loại phòng</span>
+                                <strong th:text="${booking.room.category.name}">
+                                    Standard
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <i class="bi bi-calendar-check"></i>
+                            <div>
+                                <span>Ngày nhận phòng</span>
+                                <strong th:text="${booking.checkInDate}">
+                                    2026-05-20
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <i class="bi bi-calendar-x"></i>
+                            <div>
+                                <span>Ngày trả phòng</span>
+                                <strong th:text="${booking.checkOutDate}">
+                                    2026-05-22
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <i class="bi bi-people"></i>
+                            <div>
+                                <span>Số khách</span>
+                                <strong>
+                                    <span th:text="${booking.numberOfGuests}">2</span>
+                                    khách
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <i class="bi bi-layers"></i>
+                            <div>
+                                <span>Tầng</span>
+                                <strong th:text="${booking.room.floor}">
+                                    1
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-crud-panel">
+                    <div class="admin-crud-panel-head">
+                        <div>
+                            <span>Yêu cầu đặc biệt</span>
+                            <h2>Ghi chú của khách</h2>
+                        </div>
+                    </div>
+
+                    <div class="admin-booking-request"
+                         th:if="${booking.specialRequests != null and !#strings.isEmpty(booking.specialRequests)}">
+                        <p th:text="${booking.specialRequests}">
+                            Phòng yên tĩnh.
+                        </p>
+                    </div>
+
+                    <div class="admin-booking-request admin-booking-request-empty"
+                         th:if="${booking.specialRequests == null or #strings.isEmpty(booking.specialRequests)}">
+                        <i class="bi bi-chat-left-text"></i>
+                        <p>Khách không có yêu cầu đặc biệt.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side -->
+            <aside class="admin-booking-detail-side">
+
+                <div class="admin-crud-panel">
+                    <div class="admin-payment-total">
+                        <span>Tổng tiền</span>
+                        <strong>
+                            <span th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'POINT', 0, 'COMMA')}">
+                                1.000.000
+                            </span>
+                            đ
+                        </strong>
+                    </div>
+
+                    <div class="admin-payment-list">
+                        <div>
+                            <span>Trạng thái đơn</span>
+                            <strong th:switch="${booking.bookingStatus}">
+                                <span th:case="'PENDING'">Chờ xác nhận</span>
+                                <span th:case="'CONFIRMED'">Đã xác nhận</span>
+                                <span th:case="'CANCELLED'">Đã hủy</span>
+                                <span th:case="'COMPLETED'">Hoàn tất</span>
+                                <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Thanh toán</span>
+                            <strong th:switch="${booking.paymentStatus}">
+                                <span th:case="'UNPAID'">Chưa thanh toán</span>
+                                <span th:case="'PAID'">Đã thanh toán</span>
+                                <span th:case="'REFUNDED'">Đã hoàn tiền</span>
+                                <span th:case="*" th:text="${booking.paymentStatus}">Chưa thanh toán</span>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Phương thức</span>
+                            <strong th:switch="${booking.paymentMethod}">
+                                <span th:case="'CASH'">Thanh toán tại khách sạn</span>
+                                <span th:case="'BANK_TRANSFER'">Chuyển khoản ngân hàng</span>
+                                <span th:case="'CARD'">Thẻ tín dụng / ghi nợ</span>
+                                <span th:case="*" th:text="${booking.paymentMethod}">Thanh toán</span>
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-crud-panel">
+                    <div class="admin-crud-panel-head">
+                        <div>
+                            <span>Thao tác</span>
+                            <h2>Xử lý đơn</h2>
+                        </div>
+                    </div>
+
+                    <div class="admin-booking-actions-panel">
+                        <form th:if="${booking.bookingStatus == 'PENDING'}"
+                              th:action="@{/admin/bookings/{id}/confirm(id=${booking.id})}"
+                              method="post">
+                            <button type="submit" class="admin-form-submit w-100">
+                                <i class="bi bi-check2"></i>
+                                <span>Duyệt booking</span>
+                            </button>
+                        </form>
+
+                        <form th:if="${booking.bookingStatus != 'CANCELLED' and booking.bookingStatus != 'COMPLETED'}"
+                              th:action="@{/admin/bookings/{id}/cancel(id=${booking.id})}"
+                              method="post"
+                              onsubmit="return confirm('Bạn có chắc muốn hủy đơn đặt phòng này?');">
+                            <button type="submit" class="admin-form-danger w-100">
+                                <i class="bi bi-x-lg"></i>
+                                <span>Hủy booking</span>
+                            </button>
+                        </form>
+
+                        <form th:action="@{/admin/bookings/{id}/payment(id=${booking.id})}"
+                              method="post"
+                              class="admin-payment-form">
+                            <label for="paymentStatus">Cập nhật thanh toán</label>
+
+                            <div class="admin-form-control-wrap">
+                                <i class="bi bi-credit-card"></i>
+                                <select id="paymentStatus"
+                                        name="paymentStatus"
+                                        class="admin-form-control">
+                                    <option value="UNPAID"
+                                            th:selected="${booking.paymentStatus == 'UNPAID'}">
+                                        Chưa thanh toán
+                                    </option>
+                                    <option value="PAID"
+                                            th:selected="${booking.paymentStatus == 'PAID'}">
+                                        Đã thanh toán
+                                    </option>
+                                    <option value="REFUNDED"
+                                            th:selected="${booking.paymentStatus == 'REFUNDED'}">
+                                        Đã hoàn tiền
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="admin-form-submit w-100">
+                                Cập nhật thanh toán
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </aside>
+
+        </section>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

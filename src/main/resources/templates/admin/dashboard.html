@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Hotel Booking</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/admin-header :: adminHeader}"></div>
+
+<main class="flex-grow-1 admin-dashboard-page">
+    <div class="container">
+
+        <!-- Page head -->
+        <section class="admin-dashboard-head">
+            <div>
+                <span>Admin Dashboard</span>
+                <h1>Tổng quan hệ thống</h1>
+                <p>
+                    Theo dõi nhanh tình hình phòng, loại phòng, đơn đặt phòng và doanh thu.
+                </p>
+            </div>
+
+            <div class="admin-dashboard-actions">
+                <a th:href="@{/admin/rooms}" class="admin-head-action">
+                    Quản lý phòng
+                </a>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="admin-stat-grid">
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-door-open"></i>
+                </div>
+
+                <div>
+                    <span>Tổng số phòng</span>
+                    <strong th:text="${totalRooms}">0</strong>
+                </div>
+            </div>
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-grid"></i>
+                </div>
+
+                <div>
+                    <span>Loại phòng</span>
+                    <strong th:text="${totalCategories}">0</strong>
+                </div>
+            </div>
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+
+                <div>
+                    <span>Tổng booking</span>
+                    <strong th:text="${totalBookings}">0</strong>
+                </div>
+            </div>
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+
+                <div>
+                    <span>Tổng doanh thu</span>
+                    <strong>
+                        <span th:text="${#numbers.formatDecimal(totalRevenue, 0, 'POINT', 0, 'COMMA')}">
+                            0
+                        </span>
+                        đ
+                    </strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard content -->
+        <section class="admin-dashboard-layout">
+
+            <!-- Booking status -->
+            <div class="admin-panel">
+                <div class="admin-panel-head">
+                    <div>
+                        <span>Thống kê booking</span>
+                        <h2>Trạng thái đơn đặt phòng</h2>
+                    </div>
+                </div>
+
+                <div class="admin-status-list">
+                    <div class="admin-status-item">
+                        <div>
+                            <span class="admin-status-dot status-dot-pending"></span>
+                            <span>Chờ xác nhận</span>
+                        </div>
+                        <strong th:text="${pendingBookings}">0</strong>
+                    </div>
+
+                    <div class="admin-status-item">
+                        <div>
+                            <span class="admin-status-dot status-dot-confirmed"></span>
+                            <span>Đã xác nhận</span>
+                        </div>
+                        <strong th:text="${confirmedBookings}">0</strong>
+                    </div>
+
+                    <div class="admin-status-item">
+                        <div>
+                            <span class="admin-status-dot status-dot-completed"></span>
+                            <span>Hoàn tất</span>
+                        </div>
+                        <strong th:text="${completedBookings}">0</strong>
+                    </div>
+
+                    <div class="admin-status-item">
+                        <div>
+                            <span class="admin-status-dot status-dot-cancelled"></span>
+                            <span>Đã hủy</span>
+                        </div>
+                        <strong th:text="${cancelledBookings}">0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick links -->
+            <div class="admin-panel">
+                <div class="admin-panel-head">
+                    <div>
+                        <span>Quản lý nhanh</span>
+                        <h2>Lối tắt admin</h2>
+                    </div>
+                </div>
+
+                <div class="admin-quick-list">
+                    <a th:href="@{/admin/rooms}" class="admin-quick-link">
+                        <i class="bi bi-door-open"></i>
+                        <div>
+                            <strong>Quản lý phòng</strong>
+                            <span>Thêm, sửa, xóa thông tin phòng.</span>
+                        </div>
+                    </a>
+
+                    <a th:href="@{/admin/categories}" class="admin-quick-link">
+                        <i class="bi bi-grid"></i>
+                        <div>
+                            <strong>Quản lý loại phòng</strong>
+                            <span>Cập nhật giá, sức chứa và tiện nghi.</span>
+                        </div>
+                    </a>
+
+                    <a th:href="@{/admin/bookings}" class="admin-quick-link">
+                        <i class="bi bi-calendar2-check"></i>
+                        <div>
+                            <strong>Quản lý booking</strong>
+                            <span>Duyệt, hủy và cập nhật thanh toán.</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Latest bookings -->
+        <section class="admin-panel admin-latest-panel">
+            <div class="admin-panel-head admin-panel-head-row">
+                <div>
+                    <span>Booking mới nhất</span>
+                    <h2>Đơn đặt phòng gần đây</h2>
+                </div>
+
+                <a th:href="@{/admin/bookings}" class="admin-panel-link">
+                    Xem tất cả
+                </a>
+            </div>
+
+            <div class="admin-empty"
+                 th:if="${#lists.isEmpty(latestBookings)}">
+                <i class="bi bi-calendar2-x"></i>
+                <h3>Chưa có booking nào</h3>
+                <p>Các đơn đặt phòng mới sẽ được hiển thị tại đây.</p>
+            </div>
+
+            <div class="admin-table-wrap"
+                 th:if="${!#lists.isEmpty(latestBookings)}">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Phòng</th>
+                        <th>Thời gian</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="booking : ${latestBookings}">
+                        <td>
+                            <strong>
+                                #
+                                <span th:text="${booking.id}">1</span>
+                            </strong>
+                        </td>
+
+                        <td>
+                            <div class="admin-table-user">
+                                <strong th:text="${booking.user.fullName}">
+                                    Nguyễn Văn A
+                                </strong>
+                                <span th:text="${booking.user.username}">
+                                    user
+                                </span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="admin-table-room">
+                                <strong th:text="'Phòng ' + ${booking.room.roomNumber}">
+                                    Phòng 101
+                                </strong>
+                                <span th:text="${booking.room.category.name}">
+                                    Standard
+                                </span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="admin-table-date">
+                                <span th:text="${booking.checkInDate}">2026-05-20</span>
+                                <i class="bi bi-arrow-right"></i>
+                                <span th:text="${booking.checkOutDate}">2026-05-22</span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'POINT', 0, 'COMMA')}">
+                                    1.000.000
+                                </span>
+                                đ
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span class="admin-booking-badge"
+                                  th:classappend="${booking.bookingStatus == 'PENDING' ? ' admin-badge-pending' :
+                                      (booking.bookingStatus == 'CONFIRMED' ? ' admin-badge-confirmed' :
+                                      (booking.bookingStatus == 'CANCELLED' ? ' admin-badge-cancelled' :
+                                      (booking.bookingStatus == 'COMPLETED' ? ' admin-badge-completed' : ' admin-badge-pending')))}"
+                                  th:switch="${booking.bookingStatus}">
+                                <span th:case="'PENDING'">Chờ xác nhận</span>
+                                <span th:case="'CONFIRMED'">Đã xác nhận</span>
+                                <span th:case="'CANCELLED'">Đã hủy</span>
+                                <span th:case="'COMPLETED'">Hoàn tất</span>
+                                <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

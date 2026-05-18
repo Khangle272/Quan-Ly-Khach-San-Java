@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:fragment="footer" class="app-footer">
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-about">
+                <a class="footer-brand" th:href="@{/}">
+                    <span class="app-brand-mark">
+                        <i class="bi bi-building"></i>
+                    </span>
+                    <span>Hotel Booking</span>
+                </a>
+
+                <p>
+                    Đặt phòng khách sạn đơn giản, rõ ràng và thuận tiện
+                    cho mỗi chuyến đi.
+                </p>
+            </div>
+
+            <div class="footer-group">
+                <h6>Liên hệ</h6>
+
+                <ul class="footer-list list-unstyled">
+                    <li>
+                        <i class="bi bi-geo-alt"></i>
+                        <span>TP.HCM, Việt Nam</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-telephone"></i>
+                        <span>0354677100</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-envelope"></i>
+                        <span>hotel@example.com</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-group">
+                <h6>Liên kết</h6>
+
+                <ul class="footer-list list-unstyled">
+                    <li>
+                        <a th:href="@{/}">Trang chủ</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/rooms}">Phòng</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/login}">Đăng nhập</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <span>&copy; 2026 Hotel Booking</span>
+            <span>Simple stay, better days.</span>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
