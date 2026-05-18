@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<nav th:fragment="header" class="navbar navbar-expand-lg app-header">
+    <div class="container">
+        <a class="navbar-brand app-brand" th:href="@{/}">
+            <span class="app-brand-mark">
+                <i class="bi bi-building"></i>
+            </span>
+            <span class="app-brand-text">Hotel Booking</span>
+        </a>
+
+        <button class="navbar-toggler app-navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav app-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/rooms}">Phòng</a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasRole('USER')">
+                    <a class="nav-link" th:href="@{/booking/history}">
+                        Lịch sử đặt phòng
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        Admin
+                    </a>
+                </li>
+            </ul>
+
+            <div class="app-header-actions">
+                <div sec:authorize="!isAuthenticated()" class="guest-actions">
+                    <a class="header-link" th:href="@{/login}">
+                        Đăng nhập
+                    </a>
+
+                    <a class="header-button" th:href="@{/register}">
+                        Đăng ký
+                    </a>
+                </div>
+
+                <div sec:authorize="isAuthenticated()" class="user-actions">
+                    <div class="user-chip">
+                        <i class="bi bi-person-circle"></i>
+                        <span>
+                            Xin chào,
+                            <strong sec:authentication="name">user</strong>
+                        </span>
+                    </div>
+
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="logout-button">
+                            Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>

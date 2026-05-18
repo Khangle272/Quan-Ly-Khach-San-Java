@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý loại phòng - Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/admin-header :: adminHeader}"></div>
+
+<main class="flex-grow-1 admin-crud-page">
+    <div class="container">
+
+        <section class="admin-crud-head">
+            <div>
+                <span>Quản lý loại phòng</span>
+                <h1>Danh sách loại phòng</h1>
+                <p>
+                    Quản lý giá, sức chứa, loại giường và tiện nghi của từng loại phòng.
+                </p>
+            </div>
+
+            <a th:href="@{/admin/categories/create}" class="admin-crud-primary">
+                <i class="bi bi-plus-lg"></i>
+                <span>Thêm loại phòng</span>
+            </a>
+        </section>
+
+        <div class="admin-crud-alert admin-crud-alert-success"
+             th:if="${successMessage != null}">
+            <i class="bi bi-check-circle"></i>
+            <span th:text="${successMessage}">Thành công.</span>
+        </div>
+
+        <div class="admin-crud-alert admin-crud-alert-danger"
+             th:if="${errorMessage != null}">
+            <i class="bi bi-exclamation-circle"></i>
+            <span th:text="${errorMessage}">Có lỗi xảy ra.</span>
+        </div>
+
+        <section class="admin-crud-panel">
+            <div class="admin-crud-panel-head">
+                <div>
+                    <span>Dữ liệu loại phòng</span>
+                    <h2>Tất cả loại phòng</h2>
+                </div>
+
+                <a th:href="@{/admin/dashboard}" class="admin-crud-link">
+                    Quay lại dashboard
+                </a>
+            </div>
+
+            <div class="admin-crud-empty"
+                 th:if="${#lists.isEmpty(categories)}">
+                <i class="bi bi-grid"></i>
+                <h3>Chưa có loại phòng nào</h3>
+                <p>Hãy thêm loại phòng đầu tiên để bắt đầu quản lý dữ liệu.</p>
+
+                <a th:href="@{/admin/categories/create}" class="admin-crud-primary">
+                    Thêm loại phòng
+                </a>
+            </div>
+
+            <div class="admin-crud-table-wrap"
+                 th:if="${!#lists.isEmpty(categories)}">
+                <table class="admin-crud-table">
+                    <thead>
+                    <tr>
+                        <th>Loại phòng</th>
+                        <th>Giá</th>
+                        <th>Sức chứa</th>
+                        <th>Loại giường</th>
+                        <th>Tiện nghi</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="category : ${categories}">
+                        <td>
+                            <div class="admin-crud-title-cell">
+                                <strong th:text="${category.name}">
+                                    Standard
+                                </strong>
+                                <span th:text="${category.description}">
+                                    Mô tả loại phòng
+                                </span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(category.price, 0, 'POINT', 0, 'COMMA')}">
+                                    500.000
+                                </span>
+                                đ
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span>
+                                <span th:text="${category.capacity}">2</span>
+                                khách
+                            </span>
+                        </td>
+
+                        <td>
+                            <span th:text="${category.bedType}">
+                                Giường đôi
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="admin-category-amenities"
+                                 th:if="${category.amenities != null and !#strings.isEmpty(category.amenities)}"
+                                 th:with="amenities=${#strings.arraySplit(category.amenities, ',')}">
+
+                                <span th:each="amenity, amenityStat : ${amenities}"
+                                      th:if="${amenityStat.index < 3}"
+                                      th:text="${#strings.trim(amenity)}">
+                                    WiFi
+                                </span>
+
+                                <span th:if="${#arrays.length(amenities) > 3}"
+                                      th:text="${'+ ' + (#arrays.length(amenities) - 3)}">
+                                    + 2
+                                </span>
+                            </div>
+
+                            <span th:if="${category.amenities == null or #strings.isEmpty(category.amenities)}">
+                                -
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="admin-crud-actions">
+                                <a th:href="@{/admin/categories/edit/{id}(id=${category.id})}"
+                                   class="admin-crud-action admin-crud-action-edit">
+                                    Sửa
+                                </a>
+
+                                <a th:href="@{/admin/categories/delete/{id}(id=${category.id})}"
+                                   class="admin-crud-action admin-crud-action-delete"
+                                   onclick="return confirm('Bạn có chắc muốn xóa loại phòng này?');">
+                                    Xóa
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
