@@ -11,9 +11,17 @@ import java.util.List;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
-    @Query("SELECT r FROM Room r WHERE r.category.id = :categoryId AND r.id NOT IN (" +
+    @Query("SELECT r FROM Room r WHERE r.category.id = :categoryId AND r.status = 'AVAILABLE' AND r.id NOT IN (" +
            "SELECT b.room.id FROM Booking b WHERE b.checkInDate < :checkOut AND b.checkOutDate > :checkIn)")
     List<Room> findAvailableRoomsByCategoryAndDates(@Param("categoryId") Long categoryId,
                                                     @Param("checkIn") LocalDate checkIn,
                                                     @Param("checkOut") LocalDate checkOut);
+
+    @Query("SELECT COUNT(r) FROM Room r WHERE r.category.id = :categoryId AND r.status = 'AVAILABLE' AND r.id NOT IN (" +
+           "SELECT b.room.id FROM Booking b WHERE b.checkInDate < :checkOut AND b.checkOutDate > :checkIn)")
+    long countAvailableRoomsByCategoryAndDates(@Param("categoryId") Long categoryId,
+                                               @Param("checkIn") LocalDate checkIn,
+                                               @Param("checkOut") LocalDate checkOut);
+
+    long countByCategoryIdAndStatus(Long categoryId, String status);
 }

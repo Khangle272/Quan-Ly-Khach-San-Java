@@ -4,6 +4,7 @@ import com.example.quanlykhachsanjava.model.Room;
 import com.example.quanlykhachsanjava.model.RoomCategory;
 import com.example.quanlykhachsanjava.service.CategoryService;
 import com.example.quanlykhachsanjava.service.RoomService;
+import com.example.quanlykhachsanjava.service.FileStorageService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -19,11 +21,14 @@ public class AdminCategoryController {
 
     private final CategoryService categoryService;
     private final RoomService roomService;
+    private final FileStorageService fileStorageService;
 
     public AdminCategoryController(CategoryService categoryService,
-                                   RoomService roomService) {
+                                   RoomService roomService,
+                                   FileStorageService fileStorageService) {
         this.categoryService = categoryService;
         this.roomService = roomService;
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping("/admin/categories")
@@ -70,8 +75,20 @@ public class AdminCategoryController {
             @RequestParam Integer capacity,
             @RequestParam String bedType,
             @RequestParam(required = false) String amenities,
+            @RequestParam(required = false) MultipartFile imageFile,
             RedirectAttributes redirectAttributes
     ) {
+        String safeName = name == null ? "" : name.trim();
+        String safeBedType = bedType == null ? "" : bedType.trim();
+        if (safeName.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Tên loại phòng không được để trống.");
+            return "redirect:/admin/categories";
+        }
+        if (price == null || price < 0) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Giá phòng không hợp lệ.");
+            return "redirect:/admin/categories";
+        }
+
         RoomCategory category;
 
         if (id != null) {
@@ -80,12 +97,22 @@ public class AdminCategoryController {
             category = new RoomCategory();
         }
 
-        category.setName(name.trim());
+        category.setName(safeName);
         category.setDescription(clean(description));
         category.setPrice(price);
         category.setCapacity(capacity);
-        category.setBedType(bedType.trim());
+        category.setBedType(safeBedType);
         category.setAmenities(clean(amenities));
+
+        try {
+            String imagePath = fileStorageService.store(imageFile);
+            if (imagePath != null) {
+                category.setImagePath(imagePath);
+            }
+        } catch (Exception exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể lưu ảnh phòng.");
+            return "redirect:/admin/categories";
+        }
 
         categoryService.save(category);
 

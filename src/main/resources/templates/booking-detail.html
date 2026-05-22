@@ -41,16 +41,30 @@
             <span class="detail-booking-status"
                   th:classappend="${booking.bookingStatus == 'PENDING' ? ' status-pending' :
                       (booking.bookingStatus == 'CONFIRMED' ? ' status-confirmed' :
+                      (booking.bookingStatus == 'STAYING' ? ' status-confirmed' :
                       (booking.bookingStatus == 'CANCELLED' ? ' status-cancelled' :
                       (booking.bookingStatus == 'COMPLETED' ? ' status-completed' : ' status-pending')))}"
                   th:switch="${booking.bookingStatus}">
                 <span th:case="'PENDING'">Chờ xác nhận</span>
                 <span th:case="'CONFIRMED'">Đã xác nhận</span>
+                <span th:case="'STAYING'">Đang lưu trú</span>
                 <span th:case="'CANCELLED'">Đã hủy</span>
                 <span th:case="'COMPLETED'">Hoàn tất</span>
                 <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>
             </span>
         </section>
+
+        <div class="booking-alert booking-alert-danger"
+              th:if="${errorMessage != null}">
+             <i class="bi bi-exclamation-circle"></i>
+             <span th:text="${errorMessage}">Có lỗi xảy ra.</span>
+         </div>
+
+         <div class="booking-alert booking-alert-success"
+              th:if="${successMessage != null}">
+             <i class="bi bi-check-circle"></i>
+             <span th:text="${successMessage}">Thành công.</span>
+         </div>
 
         <section class="booking-detail-layout">
 
@@ -177,7 +191,7 @@
                     <div class="booking-payment-head">
                         <span>Tổng tiền</span>
                         <strong>
-                            <span th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'POINT', 0, 'COMMA')}">
+                            <span th:text="${#numbers.formatDecimal(priceSummary.finalAmount, 0, 'POINT', 0, 'COMMA')}">
                                 1.000.000
                             </span>
                             đ
@@ -185,6 +199,27 @@
                     </div>
 
                     <div class="booking-payment-list">
+                        <div>
+                            <span>Giá gốc</span>
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(priceSummary.originalAmount, 0, 'POINT', 0, 'COMMA')}">
+                                    1.200.000
+                                </span>
+                                đ
+                            </strong>
+                        </div>
+
+                        <div th:if="${priceSummary.discountAmount > 0}">
+                            <span>Giảm giá</span>
+                            <strong>
+                                -
+                                <span th:text="${#numbers.formatDecimal(priceSummary.discountAmount, 0, 'POINT', 0, 'COMMA')}">
+                                    200.000
+                                </span>
+                                đ
+                            </strong>
+                        </div>
+
                         <div>
                             <span>Phương thức</span>
                             <strong th:switch="${booking.paymentMethod}">
@@ -210,6 +245,7 @@
                             <strong th:switch="${booking.bookingStatus}">
                                 <span th:case="'PENDING'">Chờ xác nhận</span>
                                 <span th:case="'CONFIRMED'">Đã xác nhận</span>
+                                <span th:case="'STAYING'">Đang lưu trú</span>
                                 <span th:case="'CANCELLED'">Đã hủy</span>
                                 <span th:case="'COMPLETED'">Hoàn tất</span>
                                 <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>
@@ -220,6 +256,15 @@
                     <p class="booking-payment-note">
                         Tổng tiền được tính dựa trên số đêm lưu trú và giá phòng tại thời điểm đặt.
                     </p>
+
+                    <form th:if="${booking.bookingStatus == 'PENDING'}"
+                          th:action="@{/booking/cancel/{id}(id=${booking.id})}"
+                          method="post"
+                          onsubmit="return confirm('Bạn có chắc muốn hủy đơn đặt phòng này?');">
+                        <button type="submit" class="booking-submit w-100">
+                            Hủy đặt phòng
+                        </button>
+                    </form>
                 </div>
 
                 <div class="booking-room-side-card">

@@ -1,11 +1,14 @@
 package com.example.quanlykhachsanjava.controller;
 import java.util.List;
 
+import com.example.quanlykhachsanjava.dto.DiscountResult;
 import com.example.quanlykhachsanjava.model.Booking;
+import com.example.quanlykhachsanjava.model.Coupon;
 import com.example.quanlykhachsanjava.model.Room;
 import com.example.quanlykhachsanjava.model.User;
 import com.example.quanlykhachsanjava.repository.UserRepository;
 import com.example.quanlykhachsanjava.service.BookingService;
+import com.example.quanlykhachsanjava.service.CouponService;
 import com.example.quanlykhachsanjava.service.RoomService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -25,13 +29,16 @@ public class BookingController {
     private final BookingService bookingService;
     private final RoomService roomService;
     private final UserRepository userRepository;
+    private final CouponService couponService;
 
     public BookingController(BookingService bookingService,
                              RoomService roomService,
-                             UserRepository userRepository) {
+                             UserRepository userRepository,
+                             CouponService couponService) {
         this.bookingService = bookingService;
         this.roomService = roomService;
         this.userRepository = userRepository;
+        this.couponService = couponService;
     }
 
     @GetMapping("/booking/create")
@@ -48,13 +55,17 @@ public class BookingController {
         }
 
         Room room = roomOptional.get();
+        int availableRooms = resolveAvailableRooms(room, checkIn, checkOut);
 
         model.addAttribute("room", room);
         model.addAttribute("checkIn", checkIn);
         model.addAttribute("checkOut", checkOut);
         model.addAttribute("numberOfGuests", room.getCategory().getCapacity());
+        model.addAttribute("roomQuantity", 1);
+        model.addAttribute("availableRooms", availableRooms);
         model.addAttribute("paymentMethod", "");
         model.addAttribute("specialRequests", "");
+        model.addAttribute("couponCode", "");
 
         return "booking-form";
     }
@@ -65,11 +76,22 @@ public class BookingController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
             @RequestParam(required = false) Integer numberOfGuests,
+            @RequestParam(required = false) Integer roomQuantity,
             @RequestParam(required = false) String paymentMethod,
             @RequestParam(required = false) String specialRequests,
+            @RequestParam(required = false) String couponCode,
             Principal principal,
             Model model
     ) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        Optional<User> userOptional = userRepository.findByUsername(principal.getName());
+        if (userOptional.isEmpty()) {
+            return "redirect:/login";
+        }
+
         Optional<Room> roomOptional = roomService.findById(roomId);
 
         if (roomOptional.isEmpty()) {
@@ -77,16 +99,12 @@ public class BookingController {
         }
 
         Room room = roomOptional.get();
+        int availableRooms = resolveAvailableRooms(room, checkIn, checkOut);
 
-        String validationError = validateBookingForm(room, checkIn, checkOut, numberOfGuests, paymentMethod);
+        String validationError = validateBookingForm(room, checkIn, checkOut, numberOfGuests, roomQuantity, paymentMethod, availableRooms);
         if (validationError != null) {
-            prepareBookingForm(model, room, checkIn, checkOut, numberOfGuests, paymentMethod, specialRequests, validationError);
+            prepareBookingForm(model, room, checkIn, checkOut, numberOfGuests, roomQuantity, availableRooms, paymentMethod, specialRequests, couponCode, validationError);
             return "booking-form";
-        }
-
-        Optional<User> userOptional = userRepository.findByUsername(principal.getName());
-        if (userOptional.isEmpty()) {
-            return "redirect:/login";
         }
 
         Booking booking = new Booking();
@@ -100,8 +118,27 @@ public class BookingController {
         booking.setBookingStatus("PENDING");
         booking.setPaymentStatus("UNPAID");
 
+        String normalizedCoupon = clean(couponCode).toUpperCase();
+        if (!normalizedCoupon.isEmpty()) {
+            Coupon coupon = couponService.findActiveByCode(normalizedCoupon)
+                    .orElse(null);
+            if (coupon == null) {
+                prepareBookingForm(model, room, checkIn, checkOut, numberOfGuests, roomQuantity, availableRooms, paymentMethod, specialRequests, couponCode, "Mã giảm giá không hợp lệ.");
+                return "booking-form";
+            }
+
+            long nights = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut);
+            double originalTotal = nights * room.getCategory().getPrice() * (roomQuantity == null ? 1 : roomQuantity);
+            DiscountResult discountResult = couponService.applyCoupon(coupon, originalTotal, nights);
+            if (!discountResult.isApplied()) {
+                prepareBookingForm(model, room, checkIn, checkOut, numberOfGuests, roomQuantity, availableRooms, paymentMethod, specialRequests, couponCode, "Mã giảm giá chưa đủ điều kiện áp dụng.");
+                return "booking-form";
+            }
+            booking.setCoupon(coupon);
+        }
+
         try {
-            Booking savedBooking = bookingService.createBooking(booking);
+            Booking savedBooking = bookingService.createBooking(booking, roomQuantity == null ? 1 : roomQuantity);
             return "redirect:/booking/success/" + savedBooking.getId();
         } catch (IllegalArgumentException | IllegalStateException exception) {
             prepareBookingForm(
@@ -110,8 +147,11 @@ public class BookingController {
                     checkIn,
                     checkOut,
                     numberOfGuests,
+                    roomQuantity,
+                    availableRooms,
                     paymentMethod,
                     specialRequests,
+                    couponCode,
                     toVietnameseBookingError(exception.getMessage())
             );
             return "booking-form";
@@ -137,9 +177,20 @@ public class BookingController {
         }
 
         model.addAttribute("booking", booking);
+        model.addAttribute("bookingGroupTotal", calculateGroupTotal(booking));
+        model.addAttribute("priceSummary", bookingService.calculatePriceSummary(booking));
 
         return "booking-success";
     }
+
+    private Double calculateGroupTotal(Booking booking) {
+        if (booking.getTotalAmount() == null) {
+            return 0.0;
+        }
+        int rooms = booking.getRoomQuantity() == null ? 1 : booking.getRoomQuantity();
+        return booking.getTotalAmount() * rooms;
+    }
+
     @GetMapping("/booking/history")
     public String bookingHistory(Principal principal, Model model) {
         if (principal == null) {
@@ -170,15 +221,36 @@ public class BookingController {
         }
 
         model.addAttribute("booking", bookingOptional.get());
+        model.addAttribute("priceSummary", bookingService.calculatePriceSummary(bookingOptional.get()));
 
         return "booking-detail";
+    }
+
+    @PostMapping("/booking/cancel/{id}")
+    public String cancelBooking(@PathVariable Long id,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            bookingService.cancelBookingByUser(id, principal.getName());
+            redirectAttributes.addFlashAttribute("successMessage", "Đã hủy đơn đặt phòng.");
+        } catch (Exception exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đơn đặt phòng.");
+        }
+
+        return "redirect:/booking/detail/" + id;
     }
 
     private String validateBookingForm(Room room,
                                        LocalDate checkIn,
                                        LocalDate checkOut,
                                        Integer numberOfGuests,
-                                       String paymentMethod) {
+                                       Integer roomQuantity,
+                                       String paymentMethod,
+                                       int availableRooms) {
         if (!"AVAILABLE".equalsIgnoreCase(room.getStatus())) {
             return "Phòng này hiện không khả dụng để đặt.";
         }
@@ -204,6 +276,15 @@ public class BookingController {
             return "Số khách vượt quá sức chứa của phòng.";
         }
 
+        int safeRoomQuantity = roomQuantity == null ? 1 : roomQuantity;
+        if (safeRoomQuantity < 1) {
+            return "Số lượng phòng không hợp lệ.";
+        }
+
+        if (safeRoomQuantity > availableRooms) {
+            return "Số lượng phòng vượt quá số phòng còn trống trong khoảng thời gian đã chọn.";
+        }
+
         if (isBlank(paymentMethod)) {
             return "Vui lòng chọn phương thức thanh toán.";
         }
@@ -216,15 +297,21 @@ public class BookingController {
                                     LocalDate checkIn,
                                     LocalDate checkOut,
                                     Integer numberOfGuests,
+                                    Integer roomQuantity,
+                                    int availableRooms,
                                     String paymentMethod,
                                     String specialRequests,
+                                    String couponCode,
                                     String errorMessage) {
         model.addAttribute("room", room);
         model.addAttribute("checkIn", checkIn);
         model.addAttribute("checkOut", checkOut);
         model.addAttribute("numberOfGuests", numberOfGuests);
+        model.addAttribute("roomQuantity", roomQuantity == null ? 1 : roomQuantity);
+        model.addAttribute("availableRooms", availableRooms);
         model.addAttribute("paymentMethod", paymentMethod);
         model.addAttribute("specialRequests", specialRequests);
+        model.addAttribute("couponCode", couponCode);
         model.addAttribute("errorMessage", errorMessage);
     }
 
@@ -249,6 +336,10 @@ public class BookingController {
             return "Phòng này đã có người đặt trong khoảng thời gian bạn chọn.";
         }
 
+        if (message.contains("Not enough rooms available")) {
+            return "Số lượng phòng trống không đủ cho khoảng thời gian bạn chọn.";
+        }
+
         return message;
     }
 
@@ -258,5 +349,13 @@ public class BookingController {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private int resolveAvailableRooms(Room room, LocalDate checkIn, LocalDate checkOut) {
+        try {
+            return roomService.countAvailableRooms(room.getCategory().getId(), checkIn, checkOut);
+        } catch (IllegalArgumentException ex) {
+            return 0;
+        }
     }
 }

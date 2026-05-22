@@ -36,7 +36,7 @@
                     <span>Mã đặt phòng</span>
                     <strong>
                         #
-                        <span th:text="${booking.id}">1</span>
+                        <span th:text="${booking.bookingGroupCode != null ? booking.bookingGroupCode : booking.id}">1</span>
                     </strong>
                 </div>
 
@@ -92,6 +92,7 @@
                         <strong th:switch="${booking.bookingStatus}">
                             <span th:case="'PENDING'">Chờ xác nhận</span>
                             <span th:case="'CONFIRMED'">Đã xác nhận</span>
+                            <span th:case="'STAYING'">Đang lưu trú</span>
                             <span th:case="'CANCELLED'">Đã hủy</span>
                             <span th:case="'COMPLETED'">Hoàn tất</span>
                             <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>
@@ -107,16 +108,44 @@
                             <span th:case="*" th:text="${booking.paymentStatus}">Chưa thanh toán</span>
                         </strong>
                     </div>
+
+                    <div class="success-info-item">
+                        <span>Số lượng phòng</span>
+                        <strong th:text="${booking.roomQuantity}">1</strong>
+                    </div>
                 </div>
 
                 <div class="booking-success-total">
                     <span>Tổng tiền dự kiến</span>
                     <strong>
-                        <span th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'POINT', 0, 'COMMA')}">
+                        <span th:text="${#numbers.formatDecimal(priceSummary.finalAmount, 0, 'POINT', 0, 'COMMA')}">
                             1.000.000
                         </span>
                         đ
                     </strong>
+                </div>
+
+                <div class="booking-success-grid" th:if="${priceSummary.originalAmount != null}">
+                    <div class="success-info-item">
+                        <span>Giá gốc</span>
+                        <strong>
+                            <span th:text="${#numbers.formatDecimal(priceSummary.originalAmount, 0, 'POINT', 0, 'COMMA')}">
+                                1.200.000
+                            </span>
+                            đ
+                        </strong>
+                    </div>
+
+                    <div class="success-info-item" th:if="${priceSummary.discountAmount > 0}">
+                        <span>Giảm giá</span>
+                        <strong>
+                            -
+                            <span th:text="${#numbers.formatDecimal(priceSummary.discountAmount, 0, 'POINT', 0, 'COMMA')}">
+                                200.000
+                            </span>
+                            đ
+                        </strong>
+                    </div>
                 </div>
 
                 <div class="booking-success-request"

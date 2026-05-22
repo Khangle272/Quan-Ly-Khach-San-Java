@@ -37,6 +37,10 @@ public class Room {
     @ToString.Exclude
     private List<Booking> bookings;
 
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Review> reviews;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

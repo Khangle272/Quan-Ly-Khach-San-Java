@@ -63,16 +63,36 @@ public class AdminBookingController {
         return "redirect:/admin/bookings/" + id;
     }
 
+    @PostMapping("/admin/bookings/{id}/stay")
+    public String markStaying(@PathVariable Long id,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            bookingService.updateBookingStatus(id, "STAYING");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã cập nhật trạng thái đang lưu trú.");
+        } catch (Exception exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể cập nhật trạng thái lưu trú.");
+        }
+
+        return "redirect:/admin/bookings/" + id;
+    }
+
+    @PostMapping("/admin/bookings/{id}/complete")
+    public String completeBooking(@PathVariable Long id,
+                                  RedirectAttributes redirectAttributes) {
+        try {
+            bookingService.updateBookingStatus(id, "COMPLETED");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã hoàn tất đơn đặt phòng.");
+        } catch (Exception exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể hoàn tất đơn đặt phòng.");
+        }
+
+        return "redirect:/admin/bookings/" + id;
+    }
+
     @PostMapping("/admin/bookings/{id}/cancel")
     public String cancelBooking(@PathVariable Long id,
                                 RedirectAttributes redirectAttributes) {
-        try {
-            bookingService.updateBookingStatus(id, "CANCELLED");
-            redirectAttributes.addFlashAttribute("successMessage", "Đã hủy đơn đặt phòng.");
-        } catch (Exception exception) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đơn đặt phòng.");
-        }
-
+        redirectAttributes.addFlashAttribute("errorMessage", "Chỉ khách hàng mới được hủy đơn ở trạng thái chờ xác nhận.");
         return "redirect:/admin/bookings/" + id;
     }
 

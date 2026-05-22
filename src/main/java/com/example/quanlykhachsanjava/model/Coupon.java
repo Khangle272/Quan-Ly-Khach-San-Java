@@ -11,39 +11,43 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "room_categories")
+@Table(name = "coupons")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoomCategory {
+public class Coupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Category name cannot be blank")
+    @NotBlank(message = "Coupon code cannot be blank")
+    @Column(nullable = false, unique = true, length = 32)
+    private String code;
+
+    @NotBlank(message = "Discount type is required")
+    @Column(nullable = false, length = 16)
+    private String discountType;
+
+    @Min(value = 0, message = "Discount value must be non-negative")
     @Column(nullable = false)
-    private String name;
+    private Double discountValue;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    private Double maxDiscountAmount;
 
-    @NotBlank(message = "Bed type cannot be blank")
-    private String bedType;
+    private Double minOrderAmount;
 
-    @Min(value = 1, message = "Capacity must be at least 1")
-    private Integer capacity;
+    private Integer minNights;
 
-    private String amenities;
+    private LocalDateTime validFrom;
 
-    private String imagePath;
+    private LocalDateTime validUntil;
 
-    @Min(value = 0, message = "Price must be positive")
     @Column(nullable = false)
-    private Double price;
+    private Boolean isActive = true;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "coupon")
     @ToString.Exclude
-    private List<Room> rooms;
+    private List<Booking> bookings;
 
     @CreationTimestamp
     @Column(updatable = false)

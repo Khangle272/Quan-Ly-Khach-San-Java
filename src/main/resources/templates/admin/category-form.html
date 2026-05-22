@@ -35,7 +35,7 @@
         </section>
 
         <section class="admin-form-card">
-            <form th:action="@{/admin/categories/save}" method="post" class="admin-form">
+            <form th:action="@{/admin/categories/save}" method="post" class="admin-form" enctype="multipart/form-data">
                 <input type="hidden" name="id" th:value="${category.id}">
 
                 <div class="admin-form-grid">
@@ -114,6 +114,18 @@
                     <p class="admin-form-help">
                         Nhập các tiện nghi cách nhau bằng dấu phẩy.
                     </p>
+                </div>
+
+                <div class="admin-form-field">
+                    <label for="imageFile">Ảnh phòng</label>
+                    <div class="admin-form-control-wrap">
+                        <i class="bi bi-image"></i>
+                        <input id="imageFile"
+                               name="imageFile"
+                               type="file"
+                               class="admin-form-control"
+                               accept="image/*">
+                    </div>
                 </div>
 
                 <div class="admin-form-field">

@@ -22,7 +22,7 @@
                 <span>Quản lý booking</span>
                 <h1>Danh sách đặt phòng</h1>
                 <p>
-                    Theo dõi, duyệt, hủy và cập nhật trạng thái thanh toán cho các đơn đặt phòng.
+                    Theo dõi, duyệt và cập nhật trạng thái lưu trú, thanh toán cho các đơn đặt phòng.
                 </p>
             </div>
 
@@ -131,11 +131,13 @@
                             <span class="admin-crud-badge"
                                   th:classappend="${booking.bookingStatus == 'PENDING' ? ' admin-badge-pending' :
                                       (booking.bookingStatus == 'CONFIRMED' ? ' admin-badge-confirmed' :
+                                      (booking.bookingStatus == 'STAYING' ? ' admin-badge-confirmed' :
                                       (booking.bookingStatus == 'CANCELLED' ? ' admin-badge-cancelled' :
-                                      (booking.bookingStatus == 'COMPLETED' ? ' admin-badge-completed' : ' admin-badge-pending')))}"
+                                      (booking.bookingStatus == 'COMPLETED' ? ' admin-badge-completed' : ' admin-badge-pending'))))}"
                                   th:switch="${booking.bookingStatus}">
                                 <span th:case="'PENDING'">Chờ xác nhận</span>
                                 <span th:case="'CONFIRMED'">Đã xác nhận</span>
+                                <span th:case="'STAYING'">Đang lưu trú</span>
                                 <span th:case="'CANCELLED'">Đã hủy</span>
                                 <span th:case="'COMPLETED'">Hoàn tất</span>
                                 <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>
@@ -171,14 +173,23 @@
                                     </button>
                                 </form>
 
-                                <form th:if="${booking.bookingStatus != 'CANCELLED' and booking.bookingStatus != 'COMPLETED'}"
-                                      th:action="@{/admin/bookings/{id}/cancel(id=${booking.id})}"
+                                <form th:if="${booking.bookingStatus == 'CONFIRMED'}"
+                                      th:action="@{/admin/bookings/{id}/stay(id=${booking.id})}"
                                       method="post"
-                                      class="m-0"
-                                      onsubmit="return confirm('Bạn có chắc muốn hủy đơn đặt phòng này?');">
+                                      class="m-0">
                                     <button type="submit"
-                                            class="admin-crud-action admin-crud-action-delete">
-                                        Hủy
+                                            class="admin-crud-action admin-crud-action-confirm">
+                                        Lưu trú
+                                    </button>
+                                </form>
+
+                                <form th:if="${booking.bookingStatus == 'STAYING'}"
+                                      th:action="@{/admin/bookings/{id}/complete(id=${booking.id})}"
+                                      method="post"
+                                      class="m-0">
+                                    <button type="submit"
+                                            class="admin-crud-action admin-crud-action-confirm">
+                                        Hoàn tất
                                     </button>
                                 </form>
                             </div>

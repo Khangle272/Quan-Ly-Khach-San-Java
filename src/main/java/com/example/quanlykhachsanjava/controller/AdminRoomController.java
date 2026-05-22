@@ -72,6 +72,16 @@ public class AdminRoomController {
             @RequestParam Long categoryId,
             RedirectAttributes redirectAttributes
     ) {
+        String safeRoomNumber = roomNumber == null ? "" : roomNumber.trim();
+        if (safeRoomNumber.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Số phòng không được để trống.");
+            return "redirect:/admin/rooms";
+        }
+        if (floor == null || floor < 1) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Tầng phòng không hợp lệ.");
+            return "redirect:/admin/rooms";
+        }
+
         Optional<RoomCategory> categoryOptional = categoryService.findById(categoryId);
 
         if (categoryOptional.isEmpty()) {
@@ -87,7 +97,7 @@ public class AdminRoomController {
             room = new Room();
         }
 
-        room.setRoomNumber(roomNumber.trim());
+        room.setRoomNumber(safeRoomNumber);
         room.setFloor(floor);
         room.setStatus(status);
         room.setCategory(categoryOptional.get());

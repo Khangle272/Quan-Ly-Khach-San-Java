@@ -168,92 +168,107 @@
                     </a>
                 </div>
             </div>
-        </section>
 
-        <!-- Latest bookings -->
-        <section class="admin-panel admin-latest-panel">
-            <div class="admin-panel-head admin-panel-head-row">
-                <div>
-                    <span>Booking mới nhất</span>
-                    <h2>Đơn đặt phòng gần đây</h2>
+            <!-- Low availability alerts -->
+            <section class="admin-alert" th:if="${!#lists.isEmpty(lowAvailabilityAlerts)}">
+                <div class="admin-alert-card">
+                    <div class="admin-alert-head">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <div>
+                            <strong>Cảnh báo phòng trống</strong>
+                            <span>Các loại phòng sắp hết dưới ngưỡng an toàn.</span>
+                        </div>
+                    </div>
+                    <ul class="admin-alert-list">
+                        <li th:each="alert : ${lowAvailabilityAlerts}" th:text="${alert}">Standard: còn 3 phòng trống</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Latest bookings -->
+            <section class="admin-panel admin-latest-panel">
+                <div class="admin-panel-head admin-panel-head-row">
+                    <div>
+                        <span>Booking mới nhất</span>
+                        <h2>Đơn đặt phòng gần đây</h2>
+                    </div>
+
+                    <a th:href="@{/admin/bookings}" class="admin-panel-link">
+                        Xem tất cả
+                    </a>
                 </div>
 
-                <a th:href="@{/admin/bookings}" class="admin-panel-link">
-                    Xem tất cả
-                </a>
-            </div>
+                <div class="admin-empty"
+                     th:if="${#lists.isEmpty(latestBookings)}">
+                    <i class="bi bi-calendar2-x"></i>
+                    <h3>Chưa có booking nào</h3>
+                    <p>Các đơn đặt phòng mới sẽ được hiển thị tại đây.</p>
+                </div>
 
-            <div class="admin-empty"
-                 th:if="${#lists.isEmpty(latestBookings)}">
-                <i class="bi bi-calendar2-x"></i>
-                <h3>Chưa có booking nào</h3>
-                <p>Các đơn đặt phòng mới sẽ được hiển thị tại đây.</p>
-            </div>
+                <div class="admin-table-wrap"
+                     th:if="${!#lists.isEmpty(latestBookings)}">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Phòng</th>
+                            <th>Thời gian</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                        </thead>
 
-            <div class="admin-table-wrap"
-                 th:if="${!#lists.isEmpty(latestBookings)}">
-                <table class="admin-table">
-                    <thead>
-                    <tr>
-                        <th>Mã đơn</th>
-                        <th>Khách hàng</th>
-                        <th>Phòng</th>
-                        <th>Thời gian</th>
-                        <th>Tổng tiền</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    <tr th:each="booking : ${latestBookings}">
-                        <td>
-                            <strong>
-                                #
-                                <span th:text="${booking.id}">1</span>
-                            </strong>
-                        </td>
-
-                        <td>
-                            <div class="admin-table-user">
-                                <strong th:text="${booking.user.fullName}">
-                                    Nguyễn Văn A
+                        <tbody>
+                        <tr th:each="booking : ${latestBookings}">
+                            <td>
+                                <strong>
+                                    #
+                                    <span th:text="${booking.id}">1</span>
                                 </strong>
-                                <span th:text="${booking.user.username}">
-                                    user
-                                </span>
-                            </div>
-                        </td>
+                            </td>
 
-                        <td>
-                            <div class="admin-table-room">
-                                <strong th:text="'Phòng ' + ${booking.room.roomNumber}">
-                                    Phòng 101
+                            <td>
+                                <div class="admin-table-user">
+                                    <strong th:text="${booking.user.fullName}">
+                                        Nguyễn Văn A
+                                    </strong>
+                                    <span th:text="${booking.user.username}">
+                                        user
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="admin-table-room">
+                                    <strong th:text="'Phòng ' + ${booking.room.roomNumber}">
+                                        Phòng 101
+                                    </strong>
+                                    <span th:text="${booking.room.category.name}">
+                                        Standard
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="admin-table-date">
+                                    <span th:text="${booking.checkInDate}">2026-05-20</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                    <span th:text="${booking.checkOutDate}">2026-05-22</span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <strong>
+                                    <span th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'POINT', 0, 'COMMA')}">
+                                        1.000.000
+                                    </span>
+                                    đ
                                 </strong>
-                                <span th:text="${booking.room.category.name}">
-                                    Standard
-                                </span>
-                            </div>
-                        </td>
+                            </td>
 
-                        <td>
-                            <div class="admin-table-date">
-                                <span th:text="${booking.checkInDate}">2026-05-20</span>
-                                <i class="bi bi-arrow-right"></i>
-                                <span th:text="${booking.checkOutDate}">2026-05-22</span>
-                            </div>
-                        </td>
-
-                        <td>
-                            <strong>
-                                <span th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'POINT', 0, 'COMMA')}">
-                                    1.000.000
-                                </span>
-                                đ
-                            </strong>
-                        </td>
-
-                        <td>
-                            <span class="admin-booking-badge"
+                            <td>
+                                <span class="admin-booking-badge"
                                   th:classappend="${booking.bookingStatus == 'PENDING' ? ' admin-badge-pending' :
                                       (booking.bookingStatus == 'CONFIRMED' ? ' admin-badge-confirmed' :
                                       (booking.bookingStatus == 'CANCELLED' ? ' admin-badge-cancelled' :

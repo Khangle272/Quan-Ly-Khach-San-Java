@@ -107,6 +107,27 @@
                             </div>
 
                             <div class="booking-field">
+                                <label for="roomQuantity">Số lượng phòng <span>*</span></label>
+                                <div class="booking-input-wrap">
+                                    <i class="bi bi-stack"></i>
+                                    <input id="roomQuantity"
+                                           name="roomQuantity"
+                                           type="number"
+                                           min="1"
+                                           th:max="${availableRooms}"
+                                           class="booking-control"
+                                           th:value="${roomQuantity}"
+                                           required>
+                                </div>
+
+                                <p class="booking-field-note">
+                                    Còn
+                                    <strong th:text="${availableRooms}">1</strong>
+                                    phòng trống trong khoảng thời gian đã chọn.
+                                </p>
+                            </div>
+
+                            <div class="booking-field">
                                 <label for="paymentMethod">Phương thức thanh toán <span>*</span></label>
                                 <div class="booking-input-wrap">
                                     <i class="bi bi-credit-card"></i>
@@ -128,6 +149,19 @@
                                             Thẻ tín dụng / ghi nợ
                                         </option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="booking-field">
+                                <label for="couponCode">Mã giảm giá</label>
+                                <div class="booking-input-wrap">
+                                    <i class="bi bi-ticket"></i>
+                                    <input id="couponCode"
+                                           name="couponCode"
+                                           type="text"
+                                           class="booking-control"
+                                           placeholder="Nhập mã giảm giá nếu có"
+                                           th:value="${couponCode}">
                                 </div>
                             </div>
                         </div>

@@ -49,6 +49,10 @@ public class Booking {
     @Min(value = 1, message = "Number of guests must be at least 1")
     private Integer numberOfGuests;
 
+    @Min(value = 1, message = "Room quantity must be at least 1")
+    @Column(nullable = false)
+    private Integer roomQuantity = 1;
+
     @Column(nullable = false)
     private String bookingStatus = "PENDING";
 
@@ -66,4 +70,12 @@ public class Booking {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id")
+    @ToString.Exclude
+    private Coupon coupon;
+
+    @Column(length = 32)
+    private String bookingGroupCode;
 }

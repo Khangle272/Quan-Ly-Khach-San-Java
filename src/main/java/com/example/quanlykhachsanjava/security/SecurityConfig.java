@@ -25,8 +25,10 @@ public class SecurityConfig {
                     "/css/**",
                     "/js/**",
                     "/images/**",
-                    "/webjars/**"
+                    "/webjars/**",
+                    "/uploads/**"
                 ).permitAll()
+                .requestMatchers("/403").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/booking/**", "/profile/**").hasRole("USER")
                 .requestMatchers("/", "/rooms/**", "/register", "/login").permitAll()
@@ -43,6 +45,9 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
+            )
+            .exceptionHandling(ex -> ex
+                .accessDeniedPage("/403")
             )
             .csrf(csrf -> csrf.disable());
 
