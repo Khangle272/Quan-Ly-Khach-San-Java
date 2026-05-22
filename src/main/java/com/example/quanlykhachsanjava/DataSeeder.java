@@ -125,7 +125,7 @@ public class DataSeeder implements CommandLineRunner {
             booking.setBookingStatus("CONFIRMED");
             booking.setPaymentStatus("COMPLETED");
             booking.setPaymentMethod("CREDIT_CARD");
-            bookingService.createBooking(booking);
+            bookingService.createBooking(booking, 1);
 
             System.out.println("========== TEST ĐẶT TRÙNG NGÀY ==========");
             try {
@@ -137,7 +137,7 @@ public class DataSeeder implements CommandLineRunner {
                 overlapping.setNumberOfGuests(1);
                 overlapping.setBookingStatus("PENDING");
                 overlapping.setPaymentStatus("UNPAID");
-                bookingService.createBooking(overlapping);
+                bookingService.createBooking(overlapping, 1);
             } catch (Exception e) {
                 System.out.println("Lỗi dự kiến đã bị bắt: " + e.getMessage());
             }

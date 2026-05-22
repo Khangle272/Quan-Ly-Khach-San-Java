@@ -32,9 +32,19 @@ public class RoomService {
     }
 
     public List<Room> getAvailableRooms(Long categoryId, LocalDate checkIn, LocalDate checkOut) {
-        if(checkIn == null || checkOut == null || checkOut.isBefore(checkIn) || checkOut.isEqual(checkIn)) {
+        if (checkIn == null || checkOut == null || checkOut.isBefore(checkIn) || checkOut.isEqual(checkIn)) {
             throw new IllegalArgumentException("Check-out date must be after check-in date");
         }
         return roomRepository.findAvailableRoomsByCategoryAndDates(categoryId, checkIn, checkOut);
+    }
+
+    public int countAvailableRooms(Long categoryId, LocalDate checkIn, LocalDate checkOut) {
+        if (checkIn == null || checkOut == null) {
+            return Math.toIntExact(roomRepository.countByCategoryIdAndStatus(categoryId, "AVAILABLE"));
+        }
+        if (checkOut.isBefore(checkIn) || checkOut.isEqual(checkIn)) {
+            throw new IllegalArgumentException("Check-out date must be after check-in date");
+        }
+        return Math.toIntExact(roomRepository.countAvailableRoomsByCategoryAndDates(categoryId, checkIn, checkOut));
     }
 }

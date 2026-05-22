@@ -4128,3 +4128,34 @@ label {
         text-align: left;
     }
 }
+
+/* Low availability alert */
+
+.admin-alert {
+    margin-bottom: 24px;
+}
+
+.admin-alert-card {
+    background: #fff4e5;
+    border: 1px solid #ffd8a8;
+    border-radius: 16px;
+    padding: 20px 24px;
+}
+
+.admin-alert-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: #d9480f;
+}
+
+.admin-alert-head i {
+    font-size: 20px;
+}
+
+.admin-alert-list {
+    margin: 0;
+    padding-left: 20px;
+    color: #5f3e1f;
+}

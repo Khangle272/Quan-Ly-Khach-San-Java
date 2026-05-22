@@ -77,11 +77,13 @@
                         <span class="history-status-badge"
                               th:classappend="${booking.bookingStatus == 'PENDING' ? ' status-pending' :
                                   (booking.bookingStatus == 'CONFIRMED' ? ' status-confirmed' :
+                                  (booking.bookingStatus == 'STAYING' ? ' status-confirmed' :
                                   (booking.bookingStatus == 'CANCELLED' ? ' status-cancelled' :
-                                  (booking.bookingStatus == 'COMPLETED' ? ' status-completed' : ' status-pending')))}"
+                                  (booking.bookingStatus == 'COMPLETED' ? ' status-completed' : ' status-pending'))))}"
                               th:switch="${booking.bookingStatus}">
                             <span th:case="'PENDING'">Chờ xác nhận</span>
                             <span th:case="'CONFIRMED'">Đã xác nhận</span>
+                            <span th:case="'STAYING'">Đang lưu trú</span>
                             <span th:case="'CANCELLED'">Đã hủy</span>
                             <span th:case="'COMPLETED'">Hoàn tất</span>
                             <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -53,6 +55,16 @@ public class AdminDashboardController {
                 .limit(5)
                 .toList();
 
+        List<String> lowAvailabilityAlerts = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+        for (RoomCategory category : categories) {
+            int availableRooms = roomService.countAvailableRooms(category.getId(), today, tomorrow);
+            if (availableRooms < 5) {
+                lowAvailabilityAlerts.add(category.getName() + ": còn " + availableRooms + " phòng trống");
+            }
+        }
+
         model.addAttribute("totalRooms", totalRooms);
         model.addAttribute("totalCategories", totalCategories);
         model.addAttribute("totalBookings", totalBookings);
@@ -64,6 +76,7 @@ public class AdminDashboardController {
         model.addAttribute("completedBookings", completedBookings);
 
         model.addAttribute("latestBookings", latestBookings);
+        model.addAttribute("lowAvailabilityAlerts", lowAvailabilityAlerts);
 
         return "admin/dashboard";
     }

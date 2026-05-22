@@ -60,7 +60,12 @@ public class AuthController {
             return "register";
         }
 
-        if (!isBlank(email) && !email.contains("@")) {
+        if (password.length() < 6) {
+            model.addAttribute("errorMessage", "Mật khẩu phải có ít nhất 6 ký tự.");
+            return "register";
+        }
+
+        if (!isBlank(email) && !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             model.addAttribute("errorMessage", "Email không hợp lệ.");
             return "register";
         }

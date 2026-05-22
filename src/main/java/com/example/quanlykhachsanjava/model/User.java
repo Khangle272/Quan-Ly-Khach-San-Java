@@ -55,6 +55,10 @@ public class User {
     @ToString.Exclude
     private List<Booking> bookings;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Review> reviews;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

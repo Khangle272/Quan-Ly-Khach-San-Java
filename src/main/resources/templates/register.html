@@ -84,7 +84,8 @@
                                        class="auth-control"
                                        placeholder="Nhập email"
                                        th:value="${email}"
-                                       autocomplete="email">
+                                       autocomplete="email"
+                                       pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
                             </div>
                         </div>
 
@@ -98,7 +99,8 @@
                                        class="auth-control"
                                        placeholder="Nhập số điện thoại"
                                        th:value="${phone}"
-                                       autocomplete="tel">
+                                       autocomplete="tel"
+                                       pattern="^\+?[0-9]{10,15}$">
                             </div>
                         </div>
 
@@ -112,6 +114,7 @@
                                        class="auth-control"
                                        placeholder="Nhập mật khẩu"
                                        autocomplete="new-password"
+                                       minlength="6"
                                        required>
                             </div>
                         </div>
@@ -126,6 +129,7 @@
                                        class="auth-control"
                                        placeholder="Nhập lại mật khẩu"
                                        autocomplete="new-password"
+                                       minlength="6"
                                        required>
                             </div>
                         </div>
