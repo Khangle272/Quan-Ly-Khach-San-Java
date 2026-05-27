@@ -132,6 +132,7 @@
         const loginError = document.getElementById("toastLoginError");
         const logoutSuccess = document.getElementById("toastLogoutSuccess");
         const registerSuccess = document.getElementById("toastRegisterSuccess");
+        const resetSuccess = document.getElementById("toastResetSuccess");
 
         if (loginError) {
             showErrorToast("Tên đăng nhập hoặc mật khẩu không đúng.");
@@ -143,6 +144,10 @@
 
         if (registerSuccess) {
             showSuccessToast("Đăng ký thành công. Vui lòng đăng nhập.");
+        }
+
+        if (resetSuccess) {
+            showSuccessToast("Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.");
         }
     }
 

@@ -33,6 +33,7 @@ public class SecurityConfig {
                     "/favicon.ico"
                 ).permitAll()
                 .requestMatchers("/403", "/error").permitAll()
+                .requestMatchers("/forgot-password", "/reset-password").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/booking/**", "/profile/**", "/reviews/**").hasRole("USER")
                 .requestMatchers("/", "/rooms/**", "/register", "/login").permitAll()
