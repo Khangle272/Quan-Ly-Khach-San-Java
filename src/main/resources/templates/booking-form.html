@@ -11,9 +11,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    
+    <div th:replace="~{fragments/toast :: toastScripts}"></div>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100"
+      th:attr="data-success-message=${successMessage},
+               data-error-message=${errorMessage}">
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main class="flex-grow-1 booking-page">
@@ -31,7 +35,7 @@
             <span>Đặt phòng</span>
             <h1>Xác nhận thông tin lưu trú</h1>
             <p>
-                Kiểm tra lại thông tin phòng và điền các thông tin cần thiết để tạo đơn đặt phòng.
+                Kiểm tra thông tin phòng, chọn thời gian lưu trú, số lượng phòng và mã giảm giá nếu có.
             </p>
         </section>
 
@@ -45,6 +49,11 @@
                             <span>Thông tin đặt phòng</span>
                             <h2>Chi tiết lưu trú</h2>
                         </div>
+
+                        <div class="booking-card-badge">
+                            <i class="bi bi-shield-check"></i>
+                            <span>Chờ xác nhận</span>
+                        </div>
                     </div>
 
                     <div class="booking-alert booking-alert-danger"
@@ -53,6 +62,28 @@
                         <span th:text="${errorMessage}">
                             Có lỗi xảy ra. Vui lòng thử lại.
                         </span>
+                    </div>
+
+                    <div class="booking-room-preview">
+                        <div class="booking-room-preview-icon">
+                            <i class="bi bi-door-open"></i>
+                        </div>
+
+                        <div>
+                            <span th:text="${room.category.name}">Deluxe</span>
+                            <h3 th:text="'Phòng ' + ${room.roomNumber}">Phòng 101</h3>
+                            <p>
+                                <i class="bi bi-people"></i>
+                                <span th:text="${room.category.capacity}">2</span>
+                                khách
+                                <span class="mx-2">•</span>
+                                <i class="bi bi-lamp"></i>
+                                <span th:text="${room.category.bedType}">Giường đôi</span>
+                                <span class="mx-2">•</span>
+                                Tầng
+                                <span th:text="${room.floor}">1</span>
+                            </p>
+                        </div>
                     </div>
 
                     <form th:action="@{/booking/create}" method="post" class="booking-form">
@@ -66,7 +97,7 @@
                                     <input id="checkIn"
                                            name="checkIn"
                                            type="date"
-                                           class="booking-control"
+                                           class="booking-control js-booking-summary-input"
                                            th:value="${checkIn}"
                                            required>
                                 </div>
@@ -79,7 +110,7 @@
                                     <input id="checkOut"
                                            name="checkOut"
                                            type="date"
-                                           class="booking-control"
+                                           class="booking-control js-booking-summary-input"
                                            th:value="${checkOut}"
                                            required>
                                 </div>
@@ -102,7 +133,7 @@
                                 <p class="booking-field-note">
                                     Tối đa
                                     <strong th:text="${room.category.capacity}">2</strong>
-                                    khách.
+                                    khách cho mỗi phòng.
                                 </p>
                             </div>
 
@@ -111,13 +142,13 @@
                                 <div class="booking-input-wrap">
                                     <i class="bi bi-stack"></i>
                                     <input id="roomQuantity"
-                                           name="roomQuantity"
-                                           type="number"
-                                           min="1"
-                                           th:max="${availableRooms}"
-                                           class="booking-control"
-                                           th:value="${roomQuantity}"
-                                           required>
+                                        name="roomQuantity"
+                                        type="number"
+                                        min="1"
+                                        th:attr="max=${availableRooms != null and availableRooms > 0 ? availableRooms : null}"
+                                        class="booking-control js-booking-summary-input"
+                                        th:value="${roomQuantity != null ? roomQuantity : 1}"
+                                        required>
                                 </div>
 
                                 <p class="booking-field-note">
@@ -136,14 +167,17 @@
                                             class="booking-control"
                                             required>
                                         <option value="">Chọn phương thức</option>
+
                                         <option value="CASH"
                                                 th:selected="${paymentMethod == 'CASH'}">
                                             Thanh toán tại khách sạn
                                         </option>
+
                                         <option value="BANK_TRANSFER"
                                                 th:selected="${paymentMethod == 'BANK_TRANSFER'}">
                                             Chuyển khoản ngân hàng
                                         </option>
+
                                         <option value="CARD"
                                                 th:selected="${paymentMethod == 'CARD'}">
                                             Thẻ tín dụng / ghi nợ
@@ -155,14 +189,18 @@
                             <div class="booking-field">
                                 <label for="couponCode">Mã giảm giá</label>
                                 <div class="booking-input-wrap">
-                                    <i class="bi bi-ticket"></i>
+                                    <i class="bi bi-ticket-perforated"></i>
                                     <input id="couponCode"
                                            name="couponCode"
                                            type="text"
                                            class="booking-control"
-                                           placeholder="Nhập mã giảm giá nếu có"
+                                           placeholder="Ví dụ: SUMMER10"
                                            th:value="${couponCode}">
                                 </div>
+
+                                <p class="booking-field-note">
+                                    Mã giảm giá sẽ được hệ thống kiểm tra khi bạn xác nhận đặt phòng.
+                                </p>
                             </div>
                         </div>
 
@@ -197,7 +235,12 @@
 
             <!-- Summary -->
             <aside class="booking-side">
-                <div class="booking-summary-card">
+                <div class="booking-summary-card booking-summary-live"
+                     id="bookingSummary"
+                     th:data-room-price="${room.category.price}"
+                     th:data-room-capacity="${room.category.capacity}"
+                     th:data-available-rooms="${availableRooms}">
+
                     <div class="booking-room-thumb">
                         <i class="bi bi-door-open"></i>
                         <span th:text="'Phòng ' + ${room.roomNumber}">
@@ -213,6 +256,12 @@
                         <h2 th:text="'Phòng ' + ${room.roomNumber}">
                             Phòng 101
                         </h2>
+
+                        <p>
+                            <i class="bi bi-geo-alt"></i>
+                            Tầng
+                            <span th:text="${room.floor}">1</span>
+                        </p>
                     </div>
 
                     <div class="booking-price">
@@ -237,7 +286,7 @@
                             <span>Sức chứa</span>
                             <strong>
                                 <span th:text="${room.category.capacity}">2</span>
-                                khách
+                                khách / phòng
                             </strong>
                         </div>
 
@@ -249,15 +298,78 @@
                         </div>
 
                         <div>
-                            <span>Tầng</span>
-                            <strong th:text="${room.floor}">
-                                1
+                            <span>Phòng trống</span>
+                            <strong>
+                                <span th:text="${availableRooms}">1</span>
+                                phòng
                             </strong>
                         </div>
                     </div>
 
+                    <div class="booking-live-summary">
+                        <div class="booking-live-summary-head">
+                            <span>Tạm tính</span>
+                            <strong>Dự kiến thanh toán</strong>
+                        </div>
+
+                        <div class="booking-live-row">
+                            <span>Ngày nhận</span>
+                            <strong id="summaryCheckIn"
+                                    th:text="${checkIn != null ? checkIn : 'Chưa chọn'}">
+                                Chưa chọn
+                            </strong>
+                        </div>
+
+                        <div class="booking-live-row">
+                            <span>Ngày trả</span>
+                            <strong id="summaryCheckOut"
+                                    th:text="${checkOut != null ? checkOut : 'Chưa chọn'}">
+                                Chưa chọn
+                            </strong>
+                        </div>
+
+                        <div class="booking-live-row">
+                            <span>Số đêm</span>
+                            <strong>
+                                <span id="summaryNights">0</span>
+                                đêm
+                            </strong>
+                        </div>
+
+                        <div class="booking-live-row">
+                            <span>Số lượng phòng</span>
+                            <strong>
+                                <span id="summaryRoomQuantity"
+                                      th:text="${roomQuantity != null ? roomQuantity : 1}">
+                                    1
+                                </span>
+                                phòng
+                            </strong>
+                        </div>
+
+                        <div class="booking-live-row">
+                            <span>Giá mỗi đêm</span>
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(room.category.price, 0, 'POINT', 0, 'COMMA')}">
+                                    500.000
+                                </span>
+                                đ
+                            </strong>
+                        </div>
+
+                        <div class="booking-live-row booking-live-row-total">
+                            <span>Tổng tạm tính</span>
+                            <strong id="summarySubtotal">0 đ</strong>
+                        </div>
+
+                        <div class="booking-live-message"
+                             id="summaryValidationMessage">
+                            Vui lòng chọn ngày nhận và ngày trả phòng để xem tổng tiền tạm tính.
+                        </div>
+                    </div>
+
                     <p class="booking-summary-note">
-                        Tổng tiền sẽ được tính tự động dựa trên số đêm lưu trú sau khi bạn xác nhận đặt phòng.
+                        Tổng tiền trên chỉ là tạm tính ở giao diện. Mã giảm giá và tổng tiền chính thức sẽ được hệ thống xác nhận khi đặt phòng.
                     </p>
                 </div>
             </aside>
@@ -269,5 +381,7 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/booking-summary.js}"></script>
+<script th:src="@{/js/toast.js}"></script>
 </body>
 </html>

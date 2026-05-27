@@ -18,7 +18,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http,
+            CustomUserDetailsService customUserDetailsService
+    ) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(
@@ -26,9 +29,10 @@ public class SecurityConfig {
                     "/js/**",
                     "/images/**",
                     "/webjars/**",
-                    "/uploads/**"
+                    "/uploads/**",
+                    "/favicon.ico"
                 ).permitAll()
-                .requestMatchers("/403").permitAll()
+                .requestMatchers("/403", "/error").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/booking/**", "/profile/**").hasRole("USER")
                 .requestMatchers("/", "/rooms/**", "/register", "/login").permitAll()
@@ -41,9 +45,16 @@ public class SecurityConfig {
                 .failureUrl("/login?error")
                 .permitAll()
             )
+            .rememberMe(remember -> remember
+                .rememberMeParameter("remember-me")
+                .key("hotel-booking-remember-me-key")
+                .tokenValiditySeconds(7 * 24 * 60 * 60)
+                .userDetailsService(customUserDetailsService)
+            )
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
+                .deleteCookies("JSESSIONID", "remember-me")
                 .permitAll()
             )
             .exceptionHandling(ex -> ex

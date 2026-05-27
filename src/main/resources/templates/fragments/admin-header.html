@@ -3,42 +3,75 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <body>
-<nav th:fragment="adminHeader" class="navbar navbar-expand-lg navbar-dark bg-dark admin-navbar">
-    <div class="container">
-        <a class="navbar-brand fw-bold" th:href="@{/admin/dashboard}">Hotel Admin</a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar"
-                aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+<nav th:fragment="adminHeader" class="navbar navbar-expand-lg admin-header">
+    <div class="container-fluid">
+        <a class="navbar-brand admin-brand" th:href="@{/admin/dashboard}">
+            <span class="admin-brand-mark">
+                <i class="bi bi-speedometer2"></i>
+            </span>
+            <span class="admin-brand-text">Hotel Admin</span>
+        </a>
+
+        <button class="navbar-toggler admin-navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#adminNavbar"
+                aria-controls="adminNavbar"
+                aria-expanded="false"
+                aria-label="Mở menu quản trị">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="adminNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav admin-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        Dashboard
+                    </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/admin/rooms}">Quản lý phòng</a>
+                    <a class="nav-link" th:href="@{/admin/rooms}">
+                        Quản lý phòng
+                    </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/admin/categories}">Loại phòng</a>
+                    <a class="nav-link" th:href="@{/admin/categories}">
+                        Quản lý loại phòng
+                    </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/admin/bookings}">Quản lý đơn</a>
+                    <a class="nav-link" th:href="@{/admin/bookings}">
+                        Quản lý đặt phòng
+                    </a>
                 </li>
             </ul>
 
-            <div class="d-flex align-items-lg-center gap-2 flex-column flex-lg-row">
-                <a class="btn btn-outline-light btn-sm" th:href="@{/}">Về website</a>
-                <span class="navbar-text small text-white-50" sec:authorize="isAuthenticated()">
-                    <span sec:authentication="name">admin</span>
-                </span>
-                <form th:action="@{/logout}" method="post" class="m-0">
-                    <button type="submit" class="btn btn-warning btn-sm">Đăng xuất</button>
+            <div class="admin-header-actions">
+                <a class="admin-view-site-link" th:href="@{/}">
+                    Xem website
+                </a>
+
+                <div class="admin-user-chip" sec:authorize="isAuthenticated()">
+                    <i class="bi bi-person-gear"></i>
+                    <span>
+                        Admin:
+                        <strong sec:authentication="name">admin</strong>
+                    </span>
+                </div>
+
+                <form th:action="@{/logout}" method="post" class="logout-form m-0">
+                    <button type="submit" class="admin-logout-button">
+                        Đăng xuất
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </nav>
+
 </body>
 </html>

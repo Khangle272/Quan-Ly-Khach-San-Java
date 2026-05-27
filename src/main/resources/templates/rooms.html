@@ -9,9 +9,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    
+    <div th:replace="~{fragments/toast :: toastScripts}"></div>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100"
+      th:attr="data-success-message=${successMessage},
+               data-error-message=${errorMessage}">
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main class="flex-grow-1 rooms-page">
@@ -27,14 +31,20 @@
                 </h1>
 
                 <h1 th:if="${isFiltered}">
-                    Phòng còn trống theo lịch đã chọn
+                    Kết quả tìm kiếm phòng
                 </h1>
 
                 <p th:if="${!isFiltered}">
-                    Chọn loại phòng và thời gian lưu trú để xem các phòng phù hợp.
+                    Chọn loại phòng, thời gian lưu trú, khoảng giá hoặc sức chứa để xem các phòng phù hợp.
                 </p>
 
                 <p th:if="${isFiltered}">
+                    Hệ thống tìm thấy
+                    <strong th:text="${roomCount != null ? roomCount : #lists.size(rooms)}">0</strong>
+                    phòng phù hợp với bộ lọc của bạn.
+                </p>
+
+                <p th:if="${isFiltered and selectedCategoryName != null and checkIn != null and checkOut != null}">
                     Kết quả cho
                     <strong th:text="${selectedCategoryName}">Standard</strong>
                     từ
@@ -48,7 +58,9 @@
         <!-- Filter -->
         <section class="rooms-filter-shell">
             <form th:action="@{/rooms}" method="get" class="row g-3 align-items-end">
-                <div class="col-lg-3 col-md-6">
+
+                <!-- Loại phòng -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
                     <label for="categoryId" class="form-label">Loại phòng</label>
                     <select id="categoryId" name="categoryId" class="form-select">
                         <option value="" th:selected="${selectedCategoryId == null}">
@@ -64,7 +76,8 @@
                     </select>
                 </div>
 
-                <div class="col-lg-3 col-md-6">
+                <!-- Ngày nhận phòng -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
                     <label for="checkIn" class="form-label">Ngày nhận phòng</label>
                     <input id="checkIn"
                            name="checkIn"
@@ -73,7 +86,8 @@
                            th:value="${checkIn}">
                 </div>
 
-                <div class="col-lg-3 col-md-6">
+                <!-- Ngày trả phòng -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
                     <label for="checkOut" class="form-label">Ngày trả phòng</label>
                     <input id="checkOut"
                            name="checkOut"
@@ -82,7 +96,67 @@
                            th:value="${checkOut}">
                 </div>
 
-                <div class="col-lg-3 col-md-6">
+                <!-- Sức chứa -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label for="capacity" class="form-label">Số khách</label>
+                    <input id="capacity"
+                           name="capacity"
+                           type="number"
+                           min="1"
+                           class="form-control"
+                           placeholder="Ví dụ: 2"
+                           th:value="${selectedCapacity}">
+                </div>
+
+                <!-- Giá từ -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label for="minPrice" class="form-label">Giá từ</label>
+                    <input id="minPrice"
+                           name="minPrice"
+                           type="number"
+                           min="0"
+                           step="10000"
+                           class="form-control"
+                           placeholder="Ví dụ: 500000"
+                           th:value="${selectedMinPrice}">
+                </div>
+
+                <!-- Giá đến -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label for="maxPrice" class="form-label">Giá đến</label>
+                    <input id="maxPrice"
+                           name="maxPrice"
+                           type="number"
+                           min="0"
+                           step="10000"
+                           class="form-control"
+                           placeholder="Ví dụ: 1000000"
+                           th:value="${selectedMaxPrice}">
+                </div>
+
+                <!-- Sắp xếp -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label for="sort" class="form-label">Sắp xếp</label>
+                    <select id="sort" name="sort" class="form-select">
+                        <option value=""
+                                th:selected="${selectedSort == null or selectedSort == ''}">
+                            Mặc định
+                        </option>
+
+                        <option value="priceAsc"
+                                th:selected="${selectedSort == 'priceAsc'}">
+                            Giá thấp đến cao
+                        </option>
+
+                        <option value="priceDesc"
+                                th:selected="${selectedSort == 'priceDesc'}">
+                            Giá cao đến thấp
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Actions -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="rooms-filter-actions">
                         <button type="submit" class="room-filter-submit">
                             <i class="bi bi-search"></i>
@@ -95,6 +169,11 @@
                     </div>
                 </div>
             </form>
+
+            <div class="mt-3 text-muted small">
+                <i class="bi bi-info-circle"></i>
+                Nếu muốn kiểm tra phòng trống theo ngày, hãy chọn đầy đủ loại phòng, ngày nhận phòng và ngày trả phòng.
+            </div>
         </section>
 
         <!-- Error -->
@@ -115,8 +194,8 @@
             <h2>Không có phòng phù hợp</h2>
 
             <p>
-                Không tìm thấy phòng trống trong khoảng thời gian bạn đã chọn.
-                Hãy thử đổi ngày lưu trú hoặc loại phòng.
+                Không tìm thấy phòng phù hợp với bộ lọc hiện tại.
+                Hãy thử đổi ngày lưu trú, loại phòng, khoảng giá hoặc sức chứa.
             </p>
 
             <a th:href="@{/rooms}" class="rooms-empty-link">
@@ -137,17 +216,6 @@
                 Hiện tại hệ thống chưa có dữ liệu phòng.
             </p>
         </section>
-
-        <!-- Result summary -->
-        <section class="rooms-result-head"
-                 th:if="${!#lists.isEmpty(rooms)}">
-            <div>
-                <span>Kết quả</span>
-                <h2>
-                    <strong th:text="${#lists.size(rooms)}">8</strong>
-                    phòng phù hợp
-                </h2>
-            </div>
 
             <a th:if="${isFiltered}" th:href="@{/rooms}">
                 Xem tất cả phòng
@@ -246,14 +314,34 @@
                         </div>
 
                         <div class="room-actions-compact">
+                            <button type="button"
+                                    class="room-secondary-action room-quick-view-trigger js-room-quick-view"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#roomQuickViewModal"
+                                    th:data-room-id="${room.id}"
+                                    th:data-room-number="${room.roomNumber}"
+                                    th:data-category-name="${room.category.name}"
+                                    th:data-price="${room.category.price}"
+                                    th:data-capacity="${room.category.capacity}"
+                                    th:data-bed-type="${room.category.bedType}"
+                                    th:data-floor="${room.floor}"
+                                    th:data-status="${room.status}"
+                                    th:data-description="${room.category.description}"
+                                    th:data-amenities="${room.category.amenities}"
+                                    th:data-image-url="${room.category.imagePath}"
+                                    th:data-detail-url="@{/rooms/{id}(id=${room.id}, categoryId=${selectedCategoryId}, checkIn=${checkIn}, checkOut=${checkOut})}"
+                                    th:data-booking-url="@{/booking/create(roomId=${room.id}, checkIn=${checkIn}, checkOut=${checkOut})}">
+                                Xem nhanh
+                            </button>
+
                             <a class="room-secondary-action"
-                               th:href="@{/rooms/{id}(id=${room.id}, categoryId=${selectedCategoryId}, checkIn=${checkIn}, checkOut=${checkOut})}">
+                            th:href="@{/rooms/{id}(id=${room.id}, categoryId=${selectedCategoryId}, checkIn=${checkIn}, checkOut=${checkOut})}">
                                 Chi tiết
                             </a>
 
                             <a class="room-primary-action"
-                               th:classappend="${room.status != 'AVAILABLE' ? ' is-disabled' : ''}"
-                               th:href="@{/booking/create(roomId=${room.id}, checkIn=${checkIn}, checkOut=${checkOut})}">
+                            th:classappend="${room.status != 'AVAILABLE' ? ' is-disabled' : ''}"
+                            th:href="@{/booking/create(roomId=${room.id}, checkIn=${checkIn}, checkOut=${checkOut})}">
                                 Đặt phòng
                             </a>
                         </div>
@@ -265,8 +353,135 @@
     </div>
 </main>
 
+</main>
+
+<!-- Quick View Modal -->
+<div class="modal fade"
+     id="roomQuickViewModal"
+     tabindex="-1"
+     aria-labelledby="roomQuickViewModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content quick-room-modal">
+
+            <div class="modal-header quick-room-modal-header">
+                <div>
+                    <span class="quick-room-kicker">Xem nhanh phòng</span>
+
+                    <h5 class="modal-title" id="roomQuickViewModalLabel">
+                        <span id="quickRoomTitle">Phòng 101</span>
+                    </h5>
+
+                    <p id="quickRoomCategory" class="quick-room-category">
+                        Deluxe
+                    </p>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Đóng">
+                </button>
+            </div>
+
+            <div class="modal-body quick-room-modal-body">
+                <div class="quick-room-layout">
+
+                    <div class="quick-room-media">
+                        <img id="quickRoomImage"
+                             src=""
+                             alt="Ảnh phòng"
+                             class="quick-room-image d-none">
+
+                        <div id="quickRoomFallback" class="quick-room-fallback">
+                            <i class="bi bi-door-open"></i>
+                            <span>Hotel Room</span>
+                        </div>
+                    </div>
+
+                    <div class="quick-room-content">
+
+                        <div class="quick-room-topline">
+                            <div class="quick-room-price">
+                                <span>Giá mỗi đêm</span>
+                                <strong id="quickRoomPrice">500.000 đ</strong>
+                            </div>
+
+                            <span id="quickRoomStatus" class="room-status status-available">
+                                Còn phòng
+                            </span>
+                        </div>
+
+                        <div class="quick-room-info-grid">
+                            <div class="quick-room-info-item">
+                                <i class="bi bi-people"></i>
+                                <div>
+                                    <span>Sức chứa</span>
+                                    <strong>
+                                        <span id="quickRoomCapacity">2</span>
+                                        khách
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <div class="quick-room-info-item">
+                                <i class="bi bi-lamp"></i>
+                                <div>
+                                    <span>Loại giường</span>
+                                    <strong id="quickRoomBedType">Giường đôi</strong>
+                                </div>
+                            </div>
+
+                            <div class="quick-room-info-item">
+                                <i class="bi bi-layers"></i>
+                                <div>
+                                    <span>Tầng</span>
+                                    <strong id="quickRoomFloor">1</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quick-room-section">
+                            <h6>Mô tả</h6>
+                            <p id="quickRoomDescription">
+                                Thông tin mô tả phòng sẽ hiển thị tại đây.
+                            </p>
+                        </div>
+
+                        <div class="quick-room-section">
+                            <h6>Tiện nghi</h6>
+                            <div id="quickRoomAmenities" class="quick-room-amenities">
+                                <span class="amenity-chip">WiFi</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer quick-room-modal-footer">
+                <a id="quickRoomDetailLink"
+                   href="#"
+                   class="room-secondary-action">
+                    Xem chi tiết
+                </a>
+
+                <a id="quickRoomBookingLink"
+                   href="#"
+                   class="room-primary-action">
+                    Đặt phòng
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/room-quick-view.js}"></script>
+<script th:src="@{/js/toast.js}"></script>
 </body>
 </html>
