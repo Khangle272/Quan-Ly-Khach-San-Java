@@ -3,6 +3,7 @@ package com.example.quanlykhachsanjava.controller;
 import com.example.quanlykhachsanjava.model.Room;
 import com.example.quanlykhachsanjava.model.RoomCategory;
 import com.example.quanlykhachsanjava.service.CategoryService;
+import com.example.quanlykhachsanjava.service.FileStorageService;
 import com.example.quanlykhachsanjava.service.RoomService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -19,11 +22,14 @@ public class AdminRoomController {
 
     private final RoomService roomService;
     private final CategoryService categoryService;
+    private final FileStorageService fileStorageService;
 
     public AdminRoomController(RoomService roomService,
-                               CategoryService categoryService) {
+                               CategoryService categoryService,
+                               FileStorageService fileStorageService) {
         this.roomService = roomService;
         this.categoryService = categoryService;
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping("/admin/rooms")
@@ -70,6 +76,7 @@ public class AdminRoomController {
             @RequestParam Integer floor,
             @RequestParam String status,
             @RequestParam Long categoryId,
+            @RequestParam(required = false) MultipartFile[] imageFiles,
             RedirectAttributes redirectAttributes
     ) {
         String safeRoomNumber = roomNumber == null ? "" : roomNumber.trim();
@@ -101,6 +108,16 @@ public class AdminRoomController {
         room.setFloor(floor);
         room.setStatus(status);
         room.setCategory(categoryOptional.get());
+
+        try {
+            List<String> imagePaths = fileStorageService.storeAll(imageFiles);
+            if (!imagePaths.isEmpty()) {
+                room.setImagePaths(String.join(",", imagePaths));
+            }
+        } catch (Exception exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể lưu ảnh phòng.");
+            return "redirect:/admin/rooms";
+        }
 
         roomService.save(room);
 

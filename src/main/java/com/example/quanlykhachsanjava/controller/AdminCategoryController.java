@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -75,7 +76,7 @@ public class AdminCategoryController {
             @RequestParam Integer capacity,
             @RequestParam String bedType,
             @RequestParam(required = false) String amenities,
-            @RequestParam(required = false) MultipartFile imageFile,
+            @RequestParam(required = false) MultipartFile[] imageFiles,
             RedirectAttributes redirectAttributes
     ) {
         String safeName = name == null ? "" : name.trim();
@@ -105,9 +106,10 @@ public class AdminCategoryController {
         category.setAmenities(clean(amenities));
 
         try {
-            String imagePath = fileStorageService.store(imageFile);
-            if (imagePath != null) {
-                category.setImagePath(imagePath);
+            List<String> imagePaths = fileStorageService.storeAll(imageFiles);
+            if (!imagePaths.isEmpty()) {
+                category.setImagePath(imagePaths.get(0));
+                category.setImagePaths(String.join(",", imagePaths));
             }
         } catch (Exception exception) {
             redirectAttributes.addFlashAttribute("errorMessage", "Không thể lưu ảnh phòng.");

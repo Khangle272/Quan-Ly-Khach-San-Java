@@ -13,10 +13,13 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100"
+      th:attr="data-success-message=${successMessage}, data-error-message=${errorMessage}">
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main class="flex-grow-1 booking-detail-page">
+<main class="flex-grow-1 booking-detail-page"
+      th:with="nights=${T(java.time.temporal.ChronoUnit).DAYS.between(booking.checkInDate, booking.checkOutDate)}">
+
     <div class="container">
 
         <div class="booking-detail-nav">
@@ -26,25 +29,33 @@
             </a>
         </div>
 
+        <!-- Header -->
         <section class="booking-detail-head">
             <div>
                 <span>Chi tiết đặt phòng</span>
+
                 <h1>
                     Đơn đặt phòng #
-                    <span th:text="${booking.id}">1</span>
+                    <span th:text="${booking.bookingGroupCode != null ? booking.bookingGroupCode : booking.id}">
+                        1
+                    </span>
                 </h1>
+
                 <p>
                     Xem lại thông tin lưu trú, thanh toán và trạng thái xử lý của đơn đặt phòng.
                 </p>
             </div>
 
             <span class="detail-booking-status"
-                  th:classappend="${booking.bookingStatus == 'PENDING' ? ' status-pending' :
-                      (booking.bookingStatus == 'CONFIRMED' ? ' status-confirmed' :
-                      (booking.bookingStatus == 'STAYING' ? ' status-confirmed' :
-                      (booking.bookingStatus == 'CANCELLED' ? ' status-cancelled' :
-                      (booking.bookingStatus == 'COMPLETED' ? ' status-completed' : ' status-pending')))}"
-                  th:switch="${booking.bookingStatus}">
+                th:classappend="${
+                    booking.bookingStatus == 'PENDING' ? ' status-pending' :
+                    booking.bookingStatus == 'CONFIRMED' ? ' status-confirmed' :
+                    booking.bookingStatus == 'STAYING' ? ' status-confirmed' :
+                    booking.bookingStatus == 'CANCELLED' ? ' status-cancelled' :
+                    booking.bookingStatus == 'COMPLETED' ? ' status-completed' :
+                    ' status-pending'
+                }"
+                th:switch="${booking.bookingStatus}">
                 <span th:case="'PENDING'">Chờ xác nhận</span>
                 <span th:case="'CONFIRMED'">Đã xác nhận</span>
                 <span th:case="'STAYING'">Đang lưu trú</span>
@@ -54,23 +65,73 @@
             </span>
         </section>
 
+        <!-- Alerts -->
         <div class="booking-alert booking-alert-danger"
-              th:if="${errorMessage != null}">
-             <i class="bi bi-exclamation-circle"></i>
-             <span th:text="${errorMessage}">Có lỗi xảy ra.</span>
-         </div>
+             th:if="${errorMessage != null}">
+            <i class="bi bi-exclamation-circle"></i>
+            <span th:text="${errorMessage}">Có lỗi xảy ra.</span>
+        </div>
 
-         <div class="booking-alert booking-alert-success"
-              th:if="${successMessage != null}">
-             <i class="bi bi-check-circle"></i>
-             <span th:text="${successMessage}">Thành công.</span>
-         </div>
+        <div class="booking-alert booking-alert-success"
+             th:if="${successMessage != null}">
+            <i class="bi bi-check-circle"></i>
+            <span th:text="${successMessage}">Thành công.</span>
+        </div>
+
+        <!-- Status timeline -->
+        <section class="booking-detail-card booking-timeline-card">
+            <div class="booking-detail-card-head">
+                <span>Tiến trình</span>
+                <h2>Trạng thái xử lý đơn</h2>
+            </div>
+
+            <div class="booking-status-timeline">
+                <div class="booking-timeline-step"
+                     th:classappend="${booking.bookingStatus == 'PENDING' or booking.bookingStatus == 'CONFIRMED' or booking.bookingStatus == 'STAYING' or booking.bookingStatus == 'COMPLETED' ? ' is-active' : ''}">
+                    <div class="booking-timeline-dot">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+                    <span>Chờ xác nhận</span>
+                </div>
+
+                <div class="booking-timeline-step"
+                     th:classappend="${booking.bookingStatus == 'CONFIRMED' or booking.bookingStatus == 'STAYING' or booking.bookingStatus == 'COMPLETED' ? ' is-active' : ''}">
+                    <div class="booking-timeline-dot">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                    <span>Đã xác nhận</span>
+                </div>
+
+                <div class="booking-timeline-step"
+                     th:classappend="${booking.bookingStatus == 'STAYING' or booking.bookingStatus == 'COMPLETED' ? ' is-active' : ''}">
+                    <div class="booking-timeline-dot">
+                        <i class="bi bi-house-check"></i>
+                    </div>
+                    <span>Đang lưu trú</span>
+                </div>
+
+                <div class="booking-timeline-step"
+                     th:classappend="${booking.bookingStatus == 'COMPLETED' ? ' is-active' : ''}">
+                    <div class="booking-timeline-dot">
+                        <i class="bi bi-stars"></i>
+                    </div>
+                    <span>Hoàn tất</span>
+                </div>
+            </div>
+
+            <div class="booking-cancelled-note"
+                 th:if="${booking.bookingStatus == 'CANCELLED'}">
+                <i class="bi bi-x-circle"></i>
+                <span>Đơn đặt phòng này đã được hủy.</span>
+            </div>
+        </section>
 
         <section class="booking-detail-layout">
 
             <!-- Main content -->
             <div class="booking-detail-main">
 
+                <!-- Stay info -->
                 <div class="booking-detail-card">
                     <div class="booking-detail-card-head">
                         <span>Thông tin lưu trú</span>
@@ -119,12 +180,36 @@
                         </div>
 
                         <div class="booking-detail-info">
+                            <i class="bi bi-moon-stars"></i>
+                            <div>
+                                <span>Số đêm</span>
+                                <strong>
+                                    <span th:text="${nights}">2</span>
+                                    đêm
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="booking-detail-info">
                             <i class="bi bi-people"></i>
                             <div>
                                 <span>Số khách</span>
                                 <strong>
                                     <span th:text="${booking.numberOfGuests}">2</span>
                                     khách
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="booking-detail-info">
+                            <i class="bi bi-stack"></i>
+                            <div>
+                                <span>Số lượng phòng</span>
+                                <strong>
+                                    <span th:text="${booking.roomQuantity != null ? booking.roomQuantity : 1}">
+                                        1
+                                    </span>
+                                    phòng
                                 </strong>
                             </div>
                         </div>
@@ -141,6 +226,7 @@
                     </div>
                 </div>
 
+                <!-- Request -->
                 <div class="booking-detail-card">
                     <div class="booking-detail-card-head">
                         <span>Yêu cầu</span>
@@ -161,14 +247,39 @@
                     </div>
                 </div>
 
+                <!-- Room detail -->
                 <div class="booking-detail-card">
                     <div class="booking-detail-card-head">
                         <span>Thông tin phòng</span>
                         <h2>Chi tiết phòng đã đặt</h2>
                     </div>
 
+                    <div class="booking-room-detail-preview">
+                        <div class="booking-room-detail-icon">
+                            <i class="bi bi-door-open"></i>
+                        </div>
+
+                        <div>
+                            <span th:text="${booking.room.category.name}">
+                                Deluxe
+                            </span>
+
+                            <h3 th:text="'Phòng ' + ${booking.room.roomNumber}">
+                                Phòng 101
+                            </h3>
+
+                            <p>
+                                <span th:text="${booking.room.category.capacity}">2</span>
+                                khách / phòng ·
+                                <span th:text="${booking.room.category.bedType}">Giường đôi</span>
+                            </p>
+                        </div>
+                    </div>
+
                     <p class="booking-room-description"
-                       th:text="${booking.room.category.description}">
+                       th:text="${booking.room.category.description != null and !#strings.isEmpty(booking.room.category.description)
+                            ? booking.room.category.description
+                            : 'Thông tin mô tả phòng đang được cập nhật.'}">
                         Phòng tiêu chuẩn, phù hợp cho khách lưu trú ngắn ngày.
                     </p>
 
@@ -182,23 +293,118 @@
                         </span>
                     </div>
                 </div>
+
+                <!-- Review -->
+                <div class="booking-detail-card"
+                     th:if="${booking.bookingStatus == 'COMPLETED'}">
+                    <div class="booking-detail-card-head">
+                        <span>Đánh giá</span>
+                        <h2>Đánh giá sau lưu trú</h2>
+                    </div>
+
+                    <div class="booking-review-status"
+                         th:if="${review != null}">
+                        <div>
+                            <strong>
+                                Bạn đã gửi đánh giá
+                                <span th:text="${review.rating} + '/5'">5/5</span>
+                            </strong>
+                            <p th:text="${review.comment != null and !#strings.isEmpty(review.comment)
+                                    ? review.comment
+                                    : 'Không có nhận xét.'}">
+                                Nhận xét
+                            </p>
+                        </div>
+
+                        <span class="booking-review-badge"
+                              th:classappend="${review.isVisible ? ' review-approved' : ' review-pending'}"
+                              th:text="${review.isVisible ? 'Đã duyệt' : 'Chờ duyệt'}">
+                            Chờ duyệt
+                        </span>
+                    </div>
+
+                    <form th:if="${canReview}"
+                          th:action="@{/reviews/create}"
+                          method="post"
+                          class="booking-review-form">
+                        <input type="hidden" name="bookingId" th:value="${booking.id}">
+
+                        <div class="booking-review-row">
+                            <label for="rating">Điểm đánh giá</label>
+                            <select id="rating" name="rating" required>
+                                <option value="">Chọn điểm</option>
+                                <option value="5">5 - Tuyệt vời</option>
+                                <option value="4">4 - Tốt</option>
+                                <option value="3">3 - Ổn</option>
+                                <option value="2">2 - Chưa hài lòng</option>
+                                <option value="1">1 - Tệ</option>
+                            </select>
+                        </div>
+
+                        <div class="booking-review-row">
+                            <label for="comment">Nhận xét</label>
+                            <textarea id="comment"
+                                      name="comment"
+                                      rows="4"
+                                      placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                        </div>
+
+                        <button type="submit" class="booking-review-submit">
+                            Gửi đánh giá
+                        </button>
+                    </form>
+                </div>
+
             </div>
 
             <!-- Side content -->
             <aside class="booking-detail-side">
 
+                <!-- Payment -->
                 <div class="booking-payment-card">
                     <div class="booking-payment-head">
-                        <span>Tổng tiền</span>
+                        <span>Tổng thanh toán</span>
+
                         <strong>
                             <span th:text="${#numbers.formatDecimal(priceSummary.finalAmount, 0, 'POINT', 0, 'COMMA')}">
                                 1.000.000
                             </span>
                             đ
                         </strong>
+
+                        <p>Tổng tiền sau khi áp dụng mã giảm giá nếu có.</p>
                     </div>
 
                     <div class="booking-payment-list">
+
+                        <div>
+                            <span>Giá mỗi đêm</span>
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(booking.room.category.price, 0, 'POINT', 0, 'COMMA')}">
+                                    500.000
+                                </span>
+                                đ
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Số đêm</span>
+                            <strong>
+                                <span th:text="${nights}">2</span>
+                                đêm
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Số lượng phòng</span>
+                            <strong>
+                                <span th:text="${booking.roomQuantity != null ? booking.roomQuantity : 1}">
+                                    1
+                                </span>
+                                phòng
+                            </strong>
+                        </div>
+
                         <div>
                             <span>Giá gốc</span>
                             <strong>
@@ -209,14 +415,21 @@
                             </strong>
                         </div>
 
-                        <div th:if="${priceSummary.discountAmount > 0}">
+                        <div th:if="${priceSummary.discountAmount != null and priceSummary.discountAmount > 0}">
                             <span>Giảm giá</span>
-                            <strong>
+                            <strong class="booking-payment-discount">
                                 -
                                 <span th:text="${#numbers.formatDecimal(priceSummary.discountAmount, 0, 'POINT', 0, 'COMMA')}">
                                     200.000
                                 </span>
                                 đ
+                            </strong>
+                        </div>
+
+                        <div th:if="${booking.coupon != null}">
+                            <span>Mã giảm giá</span>
+                            <strong th:text="${booking.coupon.code}">
+                                SUMMER10
                             </strong>
                         </div>
 
@@ -251,22 +464,50 @@
                                 <span th:case="*" th:text="${booking.bookingStatus}">Chờ xác nhận</span>
                             </strong>
                         </div>
+
+                        <div class="booking-payment-total-row">
+                            <span>Cần thanh toán</span>
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(priceSummary.finalAmount, 0, 'POINT', 0, 'COMMA')}">
+                                    1.000.000
+                                </span>
+                                đ
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="booking-payment-message"
+                         th:if="${priceSummary.message != null and !#strings.isEmpty(priceSummary.message)}">
+                        <i class="bi"
+                           th:classappend="${priceSummary.applied ? ' bi-check-circle' : ' bi-info-circle'}"></i>
+
+                        <span th:text="${priceSummary.message}">
+                            Mã giảm giá đã được áp dụng.
+                        </span>
                     </div>
 
                     <p class="booking-payment-note">
-                        Tổng tiền được tính dựa trên số đêm lưu trú và giá phòng tại thời điểm đặt.
+                        Tổng tiền được tính dựa trên số đêm lưu trú, số lượng phòng, giá phòng tại thời điểm đặt và mã giảm giá nếu có.
                     </p>
 
                     <form th:if="${booking.bookingStatus == 'PENDING'}"
                           th:action="@{/booking/cancel/{id}(id=${booking.id})}"
                           method="post"
                           onsubmit="return confirm('Bạn có chắc muốn hủy đơn đặt phòng này?');">
-                        <button type="submit" class="booking-submit w-100">
-                            Hủy đặt phòng
+                        <button type="submit" class="booking-cancel-action w-100">
+                            <i class="bi bi-x-circle"></i>
+                            <span>Hủy đặt phòng</span>
                         </button>
                     </form>
+
+                    <div class="booking-cannot-cancel"
+                         th:if="${booking.bookingStatus != 'PENDING'}">
+                        <i class="bi bi-info-circle"></i>
+                        <span>Đơn này không còn có thể hủy do đã được xử lý hoặc đã hoàn tất.</span>
+                    </div>
                 </div>
 
+                <!-- Room side card -->
                 <div class="booking-room-side-card">
                     <div class="booking-room-side-thumb">
                         <i class="bi bi-door-open"></i>
@@ -304,6 +545,9 @@
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
+<div th:replace="~{fragments/toast :: toastScripts}"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/toast.js}"></script>
 </body>
 </html>

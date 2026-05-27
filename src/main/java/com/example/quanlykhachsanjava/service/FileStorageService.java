@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,6 +34,22 @@ public class FileStorageService {
         Files.copy(file.getInputStream(), targetPath);
 
         return "/uploads/" + filename;
+    }
+
+    public List<String> storeAll(MultipartFile[] files) throws IOException {
+        List<String> paths = new ArrayList<>();
+        if (files == null || files.length == 0) {
+            return paths;
+        }
+
+        for (MultipartFile file : files) {
+            String path = store(file);
+            if (path != null) {
+                paths.add(path);
+            }
+        }
+
+        return paths;
     }
 }
 

@@ -28,6 +28,9 @@ public class Room {
 
     private Integer floor;
 
+    @Column(columnDefinition = "TEXT")
+    private String imagePaths;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @ToString.Exclude

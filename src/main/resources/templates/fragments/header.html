@@ -19,18 +19,22 @@
                 data-bs-target="#mainNavbar"
                 aria-controls="mainNavbar"
                 aria-expanded="false"
-                aria-label="Toggle navigation">
+                aria-label="Mở menu">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav app-nav me-auto">
+            <ul class="navbar-nav app-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                    <a class="nav-link" th:href="@{/}">
+                        Trang chủ
+                    </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/rooms}">Phòng</a>
+                    <a class="nav-link" th:href="@{/rooms}">
+                        Danh sách phòng
+                    </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasRole('USER')">
@@ -41,7 +45,7 @@
 
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link" th:href="@{/admin/dashboard}">
-                        Admin
+                        Quản trị
                     </a>
                 </li>
             </ul>
@@ -66,7 +70,7 @@
                         </span>
                     </div>
 
-                    <form th:action="@{/logout}" method="post" class="m-0">
+                    <form th:action="@{/logout}" method="post" class="logout-form m-0">
                         <button type="submit" class="logout-button">
                             Đăng xuất
                         </button>
