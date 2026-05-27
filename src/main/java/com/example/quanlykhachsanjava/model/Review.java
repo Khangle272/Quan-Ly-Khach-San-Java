@@ -29,6 +29,11 @@ public class Review {
     @ToString.Exclude
     private Room room;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id")
+    @ToString.Exclude
+    private Booking booking;
+
     @Min(value = 1, message = "Rating must be at least 1")
     @Max(value = 5, message = "Rating must be at most 5")
     @Column(nullable = false)

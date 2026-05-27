@@ -820,7 +820,7 @@ label {
 
 .admin-stat-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
     margin-bottom: 18px;
 }
@@ -872,6 +872,22 @@ label {
     display: grid;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     gap: 18px;
+    margin-bottom: 18px;
+}
+
+.admin-chart-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.admin-chart-canvas {
+    position: relative;
+    min-height: 260px;
+}
+
+.admin-metric-table-panel {
     margin-bottom: 18px;
 }
 
@@ -1220,6 +1236,15 @@ label {
 .admin-crud-action-delete:hover {
     color: #7f1d1d;
     background: #fee2e2;
+}
+
+.admin-review-comment {
+    display: block;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--muted, #6b7280);
 }
 
 /* Form */
@@ -2351,6 +2376,92 @@ label {
     color: #4b5563;
     font-size: 13px;
     font-weight: 750;
+}
+
+.booking-review-form {
+    display: grid;
+    gap: 14px;
+}
+
+.booking-review-row {
+    display: grid;
+    gap: 6px;
+}
+
+.booking-review-row label {
+    color: var(--text, #111827);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.booking-review-row select,
+.booking-review-row textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border, #e5e7eb);
+    background: #ffffff;
+    font-size: 14px;
+}
+
+.booking-review-submit {
+    min-height: 42px;
+    border-radius: 999px;
+    border: none;
+    background: var(--primary, #0f766e);
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.booking-review-submit:hover {
+    background: var(--primary-dark, #115e59);
+}
+
+.booking-review-status {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 18px;
+    background: #f8fafc;
+}
+
+.booking-review-status strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.booking-review-status p {
+    margin: 0;
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.booking-review-badge {
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.booking-review-badge.review-approved {
+    color: #047857;
+    background: #ecfdf5;
+    border: 1px solid #bbf7d0;
+}
+
+.booking-review-badge.review-pending {
+    color: #92400e;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
 }
 
 /* Detail Side */
@@ -5211,6 +5322,71 @@ button.room-secondary-action {
 .detail-review-empty p {
     margin: 0;
     color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.detail-review-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    color: #4b5563;
+    font-size: 14px;
+}
+
+.detail-review-summary strong {
+    color: var(--text, #111827);
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.detail-review-list {
+    display: grid;
+    gap: 14px;
+}
+
+.detail-review-item {
+    padding: 16px;
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.detail-review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.detail-review-header strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.detail-review-header span {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.detail-review-rating {
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.detail-review-item p {
+    margin: 0;
+    color: #4b5563;
     font-size: 14px;
     line-height: 1.7;
 }

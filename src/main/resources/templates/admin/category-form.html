@@ -125,11 +125,22 @@
                     <div class="admin-form-control-wrap">
                         <i class="bi bi-image"></i>
                         <input id="imageFile"
-                               name="imageFile"
+                               name="imageFiles"
                                type="file"
                                class="admin-form-control"
-                               accept="image/*">
+                               accept="image/*"
+                               multiple>
                     </div>
+
+                    <p class="admin-form-help">
+                        Có thể chọn nhiều ảnh cùng lúc.
+                    </p>
+
+                    <p class="admin-form-help"
+                       th:if="${category.imagePaths != null and !#strings.isEmpty(category.imagePaths)}"
+                       th:with="images=${#strings.arraySplit(category.imagePaths, ',')}">
+                        <span th:text="'Đã lưu ' + ${#arrays.length(images)} + ' ảnh.'">Đã lưu 0 ảnh.</span>
+                    </p>
                 </div>
 
                 <div class="admin-form-field">

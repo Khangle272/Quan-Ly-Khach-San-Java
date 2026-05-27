@@ -294,7 +294,7 @@
                     </div>
                 </div>
 
-                <!-- Review placeholder -->
+                <!-- Review -->
                 <div class="booking-detail-card"
                      th:if="${booking.bookingStatus == 'COMPLETED'}">
                     <div class="booking-detail-card-head">
@@ -302,16 +302,57 @@
                         <h2>Đánh giá sau lưu trú</h2>
                     </div>
 
-                    <div class="booking-review-placeholder">
-                        <i class="bi bi-star"></i>
-
+                    <div class="booking-review-status"
+                         th:if="${review != null}">
                         <div>
-                            <strong>Bạn có thể đánh giá phòng sau khi chức năng review được hoàn thiện.</strong>
-                            <p>
-                                Module review sẽ xử lý gửi đánh giá, duyệt đánh giá và hiển thị trên trang chi tiết phòng.
+                            <strong>
+                                Bạn đã gửi đánh giá
+                                <span th:text="${review.rating} + '/5'">5/5</span>
+                            </strong>
+                            <p th:text="${review.comment != null and !#strings.isEmpty(review.comment)
+                                    ? review.comment
+                                    : 'Không có nhận xét.'}">
+                                Nhận xét
                             </p>
                         </div>
+
+                        <span class="booking-review-badge"
+                              th:classappend="${review.isVisible ? ' review-approved' : ' review-pending'}"
+                              th:text="${review.isVisible ? 'Đã duyệt' : 'Chờ duyệt'}">
+                            Chờ duyệt
+                        </span>
                     </div>
+
+                    <form th:if="${canReview}"
+                          th:action="@{/reviews/create}"
+                          method="post"
+                          class="booking-review-form">
+                        <input type="hidden" name="bookingId" th:value="${booking.id}">
+
+                        <div class="booking-review-row">
+                            <label for="rating">Điểm đánh giá</label>
+                            <select id="rating" name="rating" required>
+                                <option value="">Chọn điểm</option>
+                                <option value="5">5 - Tuyệt vời</option>
+                                <option value="4">4 - Tốt</option>
+                                <option value="3">3 - Ổn</option>
+                                <option value="2">2 - Chưa hài lòng</option>
+                                <option value="1">1 - Tệ</option>
+                            </select>
+                        </div>
+
+                        <div class="booking-review-row">
+                            <label for="comment">Nhận xét</label>
+                            <textarea id="comment"
+                                      name="comment"
+                                      rows="4"
+                                      placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                        </div>
+
+                        <button type="submit" class="booking-review-submit">
+                            Gửi đánh giá
+                        </button>
+                    </form>
                 </div>
 
             </div>

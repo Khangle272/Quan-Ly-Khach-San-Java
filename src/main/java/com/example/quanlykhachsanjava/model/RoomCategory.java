@@ -37,6 +37,9 @@ public class RoomCategory {
 
     private String imagePath;
 
+    @Column(columnDefinition = "TEXT")
+    private String imagePaths;
+
     @Min(value = 0, message = "Price must be positive")
     @Column(nullable = false)
     private Double price;

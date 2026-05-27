@@ -9,6 +9,7 @@ import com.example.quanlykhachsanjava.model.User;
 import com.example.quanlykhachsanjava.repository.UserRepository;
 import com.example.quanlykhachsanjava.service.BookingService;
 import com.example.quanlykhachsanjava.service.CouponService;
+import com.example.quanlykhachsanjava.service.ReviewService;
 import com.example.quanlykhachsanjava.service.RoomService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -30,15 +31,18 @@ public class BookingController {
     private final RoomService roomService;
     private final UserRepository userRepository;
     private final CouponService couponService;
+    private final ReviewService reviewService;
 
     public BookingController(BookingService bookingService,
                              RoomService roomService,
                              UserRepository userRepository,
-                             CouponService couponService) {
+                             CouponService couponService,
+                             ReviewService reviewService) {
         this.bookingService = bookingService;
         this.roomService = roomService;
         this.userRepository = userRepository;
         this.couponService = couponService;
+        this.reviewService = reviewService;
     }
 
     @GetMapping("/booking/create")
@@ -220,8 +224,16 @@ public class BookingController {
             return "redirect:/booking/history";
         }
 
-        model.addAttribute("booking", bookingOptional.get());
-        model.addAttribute("priceSummary", bookingService.calculatePriceSummary(bookingOptional.get()));
+        Booking booking = bookingOptional.get();
+        var existingReview = reviewService.findByBookingId(id).orElse(null);
+
+        model.addAttribute("booking", booking);
+        model.addAttribute("priceSummary", bookingService.calculatePriceSummary(booking));
+        model.addAttribute("review", existingReview);
+        model.addAttribute(
+                "canReview",
+                "COMPLETED".equalsIgnoreCase(booking.getBookingStatus()) && existingReview == null
+        );
 
         return "booking-detail";
     }

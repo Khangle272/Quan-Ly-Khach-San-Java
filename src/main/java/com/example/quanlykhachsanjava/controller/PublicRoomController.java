@@ -2,7 +2,9 @@ package com.example.quanlykhachsanjava.controller;
 
 import com.example.quanlykhachsanjava.model.Room;
 import com.example.quanlykhachsanjava.model.RoomCategory;
+import com.example.quanlykhachsanjava.model.Review;
 import com.example.quanlykhachsanjava.service.CategoryService;
+import com.example.quanlykhachsanjava.service.ReviewService;
 import com.example.quanlykhachsanjava.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,6 +28,9 @@ public class PublicRoomController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @GetMapping("/rooms")
     public String rooms(
@@ -132,6 +137,13 @@ public class PublicRoomController {
         model.addAttribute("selectedCategoryId", categoryId);
         model.addAttribute("checkIn", checkIn);
         model.addAttribute("checkOut", checkOut);
+        List<Review> reviews = reviewService.findVisibleByRoomId(id);
+        double ratingAverage = reviews.isEmpty()
+                ? 0.0
+                : reviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("reviewCount", reviews.size());
+        model.addAttribute("ratingAverage", ratingAverage);
         return "room-detail";
     }
 }

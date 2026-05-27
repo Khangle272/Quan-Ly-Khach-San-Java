@@ -250,25 +250,48 @@
                     </div>
                 </section>
 
-                <!-- Review placeholder -->
+                <!-- Reviews -->
                 <section class="detail-section detail-review-section">
                     <div class="detail-section-head">
                         <span>Đánh giá</span>
                         <h2>Đánh giá của khách hàng</h2>
                     </div>
 
-                    <div class="detail-review-empty">
+                    <div class="detail-review-summary" th:if="${reviewCount > 0}">
+                        <strong>
+                            <span th:text="${#numbers.formatDecimal(ratingAverage, 1, 'POINT', 1, 'COMMA')}">0.0</span>
+                            / 5
+                        </strong>
+                        <span th:text="${reviewCount} + ' đánh giá'">0 đánh giá</span>
+                    </div>
+
+                    <div class="detail-review-empty" th:if="${reviewCount == 0}">
                         <div class="detail-review-icon">
                             <i class="bi bi-star"></i>
                         </div>
 
                         <div>
                             <strong>Chưa có đánh giá nào cho phòng này</strong>
-                            <p>
-                                Sau khi hoàn tất kỳ lưu trú, khách hàng có thể gửi đánh giá.
-                                Chức năng gửi và duyệt đánh giá sẽ được triển khai ở module review riêng.
-                            </p>
+                            <p>Hãy là người đầu tiên chia sẻ trải nghiệm của bạn.</p>
                         </div>
+                    </div>
+
+                    <div class="detail-review-list" th:if="${reviewCount > 0}">
+                        <article class="detail-review-item" th:each="review : ${reviews}">
+                            <div class="detail-review-header">
+                                <div>
+                                    <strong th:text="${review.user.fullName}">Nguyễn Văn A</strong>
+                                    <span th:text="${review.createdAt}">2026-05-27</span>
+                                </div>
+                                <span class="detail-review-rating"
+                                      th:text="${review.rating} + '/5'">5/5</span>
+                            </div>
+                            <p th:text="${review.comment != null and !#strings.isEmpty(review.comment)
+                                    ? review.comment
+                                    : 'Không có nhận xét.'}">
+                                Nhận xét
+                            </p>
+                        </article>
                     </div>
                 </section>
             </div>

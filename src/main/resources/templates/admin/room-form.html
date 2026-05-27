@@ -39,7 +39,7 @@
         </section>
 
         <section class="admin-form-card">
-            <form th:action="@{/admin/rooms/save}" method="post" class="admin-form">
+            <form th:action="@{/admin/rooms/save}" method="post" class="admin-form" enctype="multipart/form-data">
                 <input type="hidden" name="id" th:value="${room.id}">
 
                 <div class="admin-form-grid">
@@ -115,6 +115,29 @@
                             </select>
                         </div>
                     </div>
+                </div>
+
+                <div class="admin-form-field">
+                    <label for="roomImages">Ảnh phòng</label>
+                    <div class="admin-form-control-wrap">
+                        <i class="bi bi-image"></i>
+                        <input id="roomImages"
+                               name="imageFiles"
+                               type="file"
+                               class="admin-form-control"
+                               accept="image/*"
+                               multiple>
+                    </div>
+
+                    <p class="admin-form-help">
+                        Có thể chọn nhiều ảnh cùng lúc.
+                    </p>
+
+                    <p class="admin-form-help"
+                       th:if="${room.imagePaths != null and !#strings.isEmpty(room.imagePaths)}"
+                       th:with="images=${#strings.arraySplit(room.imagePaths, ',')}">
+                        <span th:text="'Đã lưu ' + ${#arrays.length(images)} + ' ảnh.'">Đã lưu 0 ảnh.</span>
+                    </p>
                 </div>
 
                 <div class="admin-form-actions">
